@@ -12,12 +12,13 @@ pygogo = "*"
 pyyaml = "*"
 trading-api-wrappers = "*"
 
-[dev-packages]
-pytest = "*"
-
 [packages.simple-settings]
 extras = [ "yaml",]
 
-[packages.trading-bots]
+[dev-packages]
+pytest = "*"
+twine = "*"
+
+[dev-packages.trading-bots]
 editable = true
 path = "."
