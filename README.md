@@ -13,7 +13,7 @@
 ![license](https://img.shields.io/badge/license-MIT-blue.svg)
 
 
-**Trading-Bots** is a general purpuse *mini-framework* for developing an [algorithmic trading bot](https://en.wikipedia.org/wiki/Algorithmic_trading) on **crypto currencies**, thus it makes no assumption of your trading goals.
+**Trading-Bots** is a general purpose *mini-framework* for developing an [algorithmic trading bot](https://en.wikipedia.org/wiki/Algorithmic_trading) on **crypto currencies**, thus it makes no assumption of your trading goals.
 
 
 ## Installation
