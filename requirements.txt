@@ -1,0 +1,13 @@
+-i https://pypi.org/simple
+backoff==1.5.0
+cached-property==1.4.3
+certifi==2018.4.16
+chardet==3.0.4
+click==6.7
+idna==2.7
+pygogo==0.12.0
+pyyaml==3.12
+requests==2.19.1
+simple-settings==0.13.0
+trading-api-wrappers==0.12.3
+urllib3==1.23

@@ -1,0 +1,23 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+cached-property = "*"
+click = "*"
+jinja2 = "*"
+requests = "*"
+pygogo = "*"
+pyyaml = "*"
+trading-api-wrappers = "*"
+
+[dev-packages]
+pytest = "*"
+
+[packages.simple-settings]
+extras = [ "yaml",]
+
+[packages.trading-bots]
+editable = true
+path = "."

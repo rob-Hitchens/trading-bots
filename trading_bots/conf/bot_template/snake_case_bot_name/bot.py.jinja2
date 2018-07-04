@@ -1,0 +1,17 @@
+from trading_bots.bots import Bot
+
+
+class {{ camel_case_bot_name }}(Bot):
+    label = '{{ bot_name }}'
+
+    def _setup(self, config):
+        # Setup your Bot before execution
+        pass
+
+    def _algorithm(self):
+        # Implement your Bot's logic here
+        pass
+
+    def _abort(self):
+        # Abort logic, runs on exception
+        pass

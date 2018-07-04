@@ -1,0 +1,25 @@
+###
+# Trading-Bots settings for examples project.
+###
+
+tag: ExampleBots
+
+dry_run: False
+
+installed_bots:
+  - example_bots.any_to_any
+  - example_bots.example
+  - example_bots.simple_limit
+
+log_level:
+  low: debug
+  high: info
+
+storage:
+  name: json
+  settings:
+    filename: store.json
+
+timeout: 120
+
+urls:
