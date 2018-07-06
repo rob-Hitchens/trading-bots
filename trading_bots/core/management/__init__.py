@@ -99,7 +99,6 @@ def startproject(name, directory, verbosity):
     Creates a Trading-Bots project directory structure for the given project
     NAME in the current directory or optionally in the given DIRECTORY.
     """
-    click.echo(name)
     handle_template('project', name, target=directory, verbosity=verbosity)
     click.echo(f"Success: '{name}' project was successfully created on '{directory}'")
 
