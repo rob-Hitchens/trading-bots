@@ -101,7 +101,11 @@ setup(
     author_email=EMAIL,
     python_requires=REQUIRES_PYTHON,
     url=URL,
-    packages=find_packages(exclude=('tests',)),
+    packages=find_packages(exclude=[
+        'tests',
+        'trading_bots.conf.bot_template',
+        'trading_bots.conf.project_template',
+    ]),
     entry_points={
         'console_scripts': ['bots=trading_bots.core.management:cli'],
     },
