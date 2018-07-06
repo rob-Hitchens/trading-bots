@@ -32,9 +32,9 @@ To install Trading-Bots, simply use `pipenv` (or `pip`, of course):
 
 Let's create a simple bot that fetches your **Bitcoin** balance on [Buda.com](https://www.buda.com)...
 
-Start a Trading-Bots project with the `bots` CLI `startproyect` command, name it `MyProject`:
+Start a Trading-Bots project with the `bots` CLI `startproject` command, name it `MyProject`:
 
-    $ bots startproyect
+    $ bots startproject
 
     TRADING BOTS 🤖
     ===============
