@@ -26,6 +26,11 @@ To install Trading-Bots, simply use `pipenv` (or `pip`, of course):
 
     $ pipenv install trading-bots
 
+Remember to activate the virtual enviroment
+
+    $ pipenv shell
+
+
 ## Getting started
 
 ### Create simple bot
