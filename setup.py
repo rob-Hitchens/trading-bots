@@ -107,7 +107,7 @@ setup(
         'trading_bots.conf.project_template',
     ]),
     entry_points={
-        'console_scripts': ['bots=trading_bots.core.management:cli'],
+        'console_scripts': ['bots-admin=trading_bots.core.management:cli'],
     },
     install_requires=REQUIRED,
     include_package_data=True,
