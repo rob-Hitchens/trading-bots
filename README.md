@@ -188,7 +188,7 @@ Run the bot!
     Starting MyBot 1530691595: 2018-07-04 08:06:35
     I have 1.0 BTC
     Run time: .9972 seconds
-    Ending MyBot 1530691595: 2018-07-04 08:06:40
+    Ending MyBot 1530691595: 2018-07-04 08:06:36
 
 Or put it to work in a loop!
 
@@ -208,12 +208,12 @@ Or put it to work in a loop!
     Starting MyBot 1530692725: 2018-07-04 08:25:25
     I have 1.0 BTC
     Run time: 1.3611 seconds
-    Ending MyBot 1530692725: 2018-07-04 08:25:30
+    Ending MyBot 1530692725: 2018-07-04 08:25:26
 
-    Starting MyBot 1530692735: 2018-07-04 08:25:35
+    Starting MyBot 1530692735: 2018-07-04 08:25:31
     I have 1.0 BTC
     Run time: 1.3632 seconds
-    Ending MyBot 1530692735: 2018-07-04 08:25:40
+    Ending MyBot 1530692735: 2018-07-04 08:25:32
 
 ### Add more features
 
@@ -276,11 +276,9 @@ Run the bot!
     - Config file: default
 
     Starting MyBot 1530691595: 2018-07-04 08:06:35
-    This is an example bot
-    Doing work for 5 seconds...
-    Finished!
-    Run time: 5.9972 seconds
-    Ending MyBot 1530691595: 2018-07-04 08:06:40
+    I have 5.0 ETH
+    Run time: .9972 seconds
+    Ending MyBot 1530691595: 2018-07-04 08:06:36
 
 Or put it to work in a loop!
 
@@ -298,19 +296,14 @@ Or put it to work in a loop!
     - Interval: 5s
 
     Starting MyBot 1530692725: 2018-07-04 08:25:25
-    This is an example bot
-    Doing work for 5 seconds...
-    Finished!
-    Run time: 5.3611 seconds
-    Ending MyBot 1530692725: 2018-07-04 08:25:30
+    I have 5.0 ETH
+    Run time: 1.3611 seconds
+    Ending MyBot 1530692725: 2018-07-04 08:25:26
 
-    Starting MyBot 1530692735: 2018-07-04 08:25:35
-    This is an example bot
-    Doing work for 5 seconds...
-    Finished!
-    Run time: 5.3632 seconds
-    Ending MyBot 1530692735: 2018-07-04 08:25:40
-
+    Starting MyBot 1530692735: 2018-07-04 08:25:31
+    I have 5.0 ETH
+    Run time: 1.3632 seconds
+    Ending MyBot 1530692735: 2018-07-04 08:25:32
 
 
 ## Bots CLI
