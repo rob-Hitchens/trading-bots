@@ -7,7 +7,7 @@ class KrakenPublic(BaseClient):
     name = 'Kraken'
 
     def _client(self):
-        return Kraken.Public(timeout=self.timeout, logger=self.log, store=self.store)
+        return Kraken.Public(timeout=self.timeout)
 
 
 class KrakenAuth(BaseClient):
@@ -16,7 +16,7 @@ class KrakenAuth(BaseClient):
     def _client(self):
         key = self.credentials['key']
         secret = self.credentials['secret']
-        return Kraken.Auth(key, secret, timeout=self.timeout, logger=self.log, store=self.store)
+        return Kraken.Auth(key, secret, timeout=self.timeout)
 
 
 class KrakenMarket(MarketClient, KrakenPublic):
