@@ -8,13 +8,13 @@ from trading_bots.utils import truncate_to
 
 
 class AnyToAny(Bot):
-    name = 'AnyToAny'
+    label = 'AnyToAny'
 
     def _setup(self, config):
         # Get configs
-        self.from_currency = config['from_currency']
+        self.from_currency = config['from']['currency']
         self.from_address = config['from']['address']
-        self.to_currency = config['to_currency']
+        self.to_currency = config['to']['currency']
         self.to_withdraw = config['to']['withdraw']
         self.to_address = config['to']['address']
         # Set market
@@ -29,7 +29,7 @@ class AnyToAny(Bot):
         # Set start date
         self.start_date = datetime.utcnow()
 
-    def _strategy(self):
+    def _algorithm(self):
         # Get new deposits
         self.log.info(f'Checking for new {self.from_currency} deposits')
         self.update_deposits()

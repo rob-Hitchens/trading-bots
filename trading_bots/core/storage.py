@@ -25,15 +25,11 @@ def get_store(logger: Logger=None):
     return store_cls(logger=logger, **kwargs)
 
 
-class Store(object):
-    source = ''
-    serializers = {
-        'json': j,
-        'pickle': p,
-    }
+class BaseStore:
+    name = ''
 
     def __init__(self, logger: Logger=None):
-        assert self.source, 'A source name must be defined!'
+        assert self.name, 'A source name must be defined!'
         self.log = logger or get_logger(__name__)
 
     @classmethod
@@ -41,10 +37,17 @@ class Store(object):
         """Configure the storage method with app settings"""
         return {}
 
+
+class Store(BaseStore):
+    serializers = {
+        'json': j,
+        'pickle': p,
+    }
+
     # GET --------------------------------------------------------------------
     def __get(self, method, *path, cast=None, serializer=None, **kwargs):
         path_str = ' '.join(path)
-        self.log.debug(f'Get {path_str} from {self.source}')
+        self.log.debug(f'Get {path_str} from {self.name}')
         try:
             value = method(*path, **kwargs)
             if serializer:
@@ -55,10 +58,10 @@ class Store(object):
                 return cast(value)
             return value
         except KeyError:
-            self.log.warning(f'{path_str} not found on {self.source}')
+            self.log.warning(f'{path_str} not found on {self.name}')
             return None
         except Exception:
-            self.log.exception(f'Failed to get {path_str} from {self.source}')
+            self.log.exception(f'Failed to get {path_str} from {self.name}')
             raise
 
     def _get(self, name: str, **kwargs):
@@ -76,7 +79,7 @@ class Store(object):
     # SET --------------------------------------------------------------------
     def __set(self, method, *path, value, serializer=None, **kwargs):
         path_str = ' '.join(path)
-        self.log.debug(f'Set {path_str} on {self.source}')
+        self.log.debug(f'Set {path_str} on {self.name}')
         try:
             if serializer:
                 if isinstance(serializer, str):
@@ -84,7 +87,7 @@ class Store(object):
                 value = serializer.dumps(value)
             method(*path, value=value, **kwargs)
         except Exception:
-            self.log.exception(f'Failed to set {path_str} on {self.source}')
+            self.log.exception(f'Failed to set {path_str} on {self.name}')
             raise
 
     def _set(self, name: str, value, **kwargs):
@@ -102,14 +105,14 @@ class Store(object):
     # DELETE -----------------------------------------------------------------
     def __delete(self, method, *path, **kwargs):
         path_str = ' '.join(path)
-        self.log.debug(f'Delete {path_str} from {self.source}')
+        self.log.debug(f'Delete {path_str} from {self.name}')
         try:
             method(*path, **kwargs)
         except KeyError:
-            self.log.warning(f'{path_str} not found on {self.source}')
+            self.log.warning(f'{path_str} not found on {self.name}')
             pass
         except Exception:
-            self.log.exception(f'Failed to delete {path_str} from {self.source}')
+            self.log.exception(f'Failed to delete {path_str} from {self.name}')
             raise
 
     def _delete(self, name: str, **kwargs):
@@ -126,7 +129,7 @@ class Store(object):
 
 
 class JSONStore(Store):
-    source = 'JSON File'
+    name = 'JSON File'
     filename = 'store.json'
 
     def __init__(self, filename: str=None, logger: Logger=None):
@@ -188,7 +191,7 @@ class JSONStore(Store):
 
 
 class RedisStore(Store):
-    source = 'Redis'
+    name = 'Redis'
 
     def __init__(self, url: str, logger: Logger=None):
         super().__init__(logger)

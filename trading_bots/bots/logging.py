@@ -18,7 +18,7 @@ def setup_pygogo(root_name='bots', logger_name='bot',
 
     if low_level_handler is None:
         if file:
-            low_level_handler = pygogo.handlers.file_hdlr(os.path.join('logs', file))
+            low_level_handler = pygogo.handlers.file_hdlr(file)
         else:
             low_level_handler = pygogo.handlers.stdout_hdlr()
 

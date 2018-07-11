@@ -121,28 +121,21 @@ class SimpleLimit(Bot):
 
     def _get_reference_prices(self):
         ref_bid, ref_ask = self.reference.get_spread_details()
-
         # Convert reference_price if reference market differs from current market
         if self.reference.market != self.market:
-            # Get conversion rate (eg CLP/USD from CurrencyLayer)
-            conversion = self.converter.get_rate_for(self.reference.market.quote, self.market.quote)['result']
+            # Get conversion rate (eg CLP/USD from OpenExchangeRates)
+            rate = self.converter.get_rate_for(self.reference.market.quote, self.market.quote)
+            self.log.info(f'{self.reference.market.quote}/{self.market.quote} rate: {rate} from {self.converter.name}')
             # Get market price according to reference (eg BTC/CLP converted from converter's BTC/USD)
-            ref_bid *= conversion
-            ref_ask *= conversion
-            # Validate market price according to reference vs international rate
-            int_rate = self.converter.get_rate_for(self.market.base, self.market.quote)['result']
-            validate('Reference bid rate', value=ref_bid,
-                     condition=int_rate * 0.9 < ref_bid < int_rate * 1.1)
-            validate('Reference ask rate', value=ref_ask,
-                     condition=int_rate * 0.9 < ref_ask < int_rate * 1.1)
+            ref_bid *= rate
+            ref_ask *= rate
         return ref_ask, ref_ask
 
     def _get_market_client(self, name, market):
         for client in self.market_clients:
             if client.name == name:
-                return client(
-                    market, client=None, dry_run=self.dry_run['clients'], timeout=self.timeout, logger=self.log,
-                    store=self.store)
+                return client(market, client=None, dry_run=self.dry_run,
+                              timeout=self.timeout, logger=self.log, store=self.store)
         raise NotImplementedError(f'Client {name} not found!')
 
     def truncate_amount(self, value):

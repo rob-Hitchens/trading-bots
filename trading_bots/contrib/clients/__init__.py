@@ -293,7 +293,7 @@ class MarketClient(BaseMarketClient):
         max_bid, min_ask = self.get_spread_details(order_book=order_book)
         volume_total = volume_bid + volume_ask
         if volume_total:
-            vw_price = round((volume_bid * max_bid + volume_ask * min_ask) / (volume_bid + volume_ask), 2)
+            vw_price = (volume_bid * max_bid + volume_ask * min_ask) / (volume_bid + volume_ask)
             vw_price_str = f'{vw_price:10,f}'
         else:
             vw_price = None

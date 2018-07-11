@@ -4,9 +4,12 @@ from datetime import datetime
 DECIMALS = {
     # Fiat
     'ARS': 2,
+    'BRL': 2,
     'CLP': 2,
     'COP': 2,
+    'EUR': 2,
     'PEN': 2,
+    'USD': 2,
     # Crypto
     'BCH': 8,
     'BTC': 8,
@@ -31,7 +34,7 @@ def truncate(value: float, decimal_places: int):
 
 def truncate_to(value: float, currency: str):
     """Truncates a value to the number of decimals corresponding to the currency"""
-    decimal_places = DECIMALS[currency.upper()]
+    decimal_places = DECIMALS.get(currency.upper(), 2)
     return truncate(value, decimal_places)
 
 

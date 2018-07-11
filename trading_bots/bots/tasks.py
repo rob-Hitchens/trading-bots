@@ -10,7 +10,7 @@ from ..conf import settings
 class BotTask:
     """Class representing a Bot Task."""
 
-    def __init__(self, bot_label: str, config_name: str, log_filename: str):
+    def __init__(self, bot_label: str, config_name: str, log_filename: str=None):
         settings.configure()
         trading_bots.setup()
         self.config_name = config_name

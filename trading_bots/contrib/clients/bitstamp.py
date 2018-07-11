@@ -8,7 +8,7 @@ class BitstampPublic(BaseClient):
     name = 'Bitstamp'
 
     def _client(self):
-        return Bitstamp.Public(timeout=self.timeout, logger=self.log, store=self.store)
+        return Bitstamp.Public(timeout=self.timeout)
 
 
 class BitstampAuth(BaseClient):
@@ -18,7 +18,7 @@ class BitstampAuth(BaseClient):
         key = self.credentials['key']
         secret = self.credentials['secret']
         customer_id = self.credentials['customer_id']
-        return Bitstamp.Auth(key, secret, customer_id, timeout=self.timeout, logger=self.log, store=self.store)
+        return Bitstamp.Auth(key, secret, customer_id, timeout=self.timeout)
 
 
 class BitstampMarket(MarketClient, BitstampPublic):
