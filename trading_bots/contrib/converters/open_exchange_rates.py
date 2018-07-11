@@ -4,7 +4,7 @@ from . import Converter
 
 
 class OpenExchangeRates(Converter):
-    name = 'Open Exchange Rates'
+    name = 'OpenExchangeRates'
     slug = 'open-exchange-rates'
 
     def __init__(self, return_decimal: bool=False, timeout: int=None, retry: bool=None):
