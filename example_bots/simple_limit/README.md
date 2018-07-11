@@ -1,4 +1,4 @@
-# Buda Bots - Simple Limit example
+# Trading Bots - Simple Limit example
 
 Example use case of Buda.com Bots framework for creating and running cryptocurrency trading bots.
 
@@ -37,7 +37,6 @@ Copy the file `secrets.yml.example` and rename it to `secrets.yml`. Then fill wi
 ### Warnings
 
 - This library will create live orders at Buda.com cryptocurrency exchange. Please review the code and check all the parameters of your strategy before entering your keys and running the bot.
-- Some bots make use of a storage file. Default storage saves data as JSON objects inside store.json file found at the root of this project. This file could contain data essential for the correct execution of this strategy.
 - This example bot requires a currency converter, by default Open Exchange Rates is needed Register and get you api key for free [here](https://openexchangerates.org/signup/free).
 
 
@@ -47,7 +46,7 @@ For more references, go to the [official documentation](https://github.com/budac
 
 ### Setup Config File
 
-Found at `example_bots/simple_limit/configs` folder. Its a yaml file that allows us to easily set our stategy's parameters.
+Found at `example_bots/simple_limit/configs` folder. Its a yaml file that allows us to easily set parameters.
 
 **Example:**
 ```yml
@@ -87,12 +86,12 @@ def _setup(self, config):
     assert self.reference.market.base == self.market.base
 ```
 
-- At the beginning of our bot Class we initialize placeholders for our `prices` and `amounts`.
+- Initializes placeholders for our `prices` and `amounts`.
 - Also setup our clients and variables according to the reference `market` on our configs.
 
 ### Algorithm
 
-This functions runs at every `loop_time` minutes. We describe our instructions following our desired strategy logic:
+We describe our instructions following our desired automation logic:
 
 ```python
 def _algorithm(self):
@@ -114,24 +113,24 @@ def _algorithm(self):
 
 **Prepare prices**
 
-- First, we go fetch our reference price from the selected exchange and market quoting its orderbook.
-- Our reference price gets converted our market's quote currency and is saved as ref_bid and ref_ask.
-- We offset our reference prices using our multipliers from configs and save them as bid_price and ask_price
+- First, we go fetch our reference price from the selected `exchange` and `market` quoting its orderbook.
+- Our reference price gets converted to our market's quote currency and is saved as `ref_bid` and `ref_ask`.
+- We offset our reference prices using our `multipliers` from configs and save them as `bid_price` and `ask_price`.
 
 **Cancel orders**
 
-- Cancel all pending orders at the selected market on Buda.com. This frees balance to use on our orders
+- Cancel all pending orders at the selected market on Buda.com. This frees balance to use on our orders.
 
 **Prepare Amounts**
-- Get amounts from configs to dictate maximum allowed to spend on each order
-- Validates against available balance
-- Sets the amount to be used on orders as quote_amount and base_amount
+- Get amounts from configs to dictate maximum allowed to spend on each order.
+- Validates against available balance.
+- Sets the amount to be used on orders as quote_amount and base_amount.
 
 **Get Deploy List**
-- Builds a list of orders to be deployed
+- Builds a list of orders to be deployed.
 
 **Deploy Orders**
-- Places our orders at the exchange (You can test with `dry_run=True` flag on global settings to be sure)
+- Places our orders at the exchange (You can test with `dry_run=True` flag on global settings to be sure).
 
 ### Abort
 
@@ -148,23 +147,21 @@ def _abort(self):
     else:
         self.log.info(f'All open orders were cancelled')
 ```
-- Basic abort function, we want to cancel all pending orders and exit
+- Basic abort function, we want to cancel all pending orders and exit.
 
 ## Running bots
 
-Test by running the desired bot once from console.
+Test by running the desired bot once from console:
 ```bash
 $ python bots.py run SimpleLimit
 ```
 
-Flag `--config` can be specified to change the default config file
-
+Flag `--config` can be specified to change the default config file:
 ```bash
 $ python bots.py run SimpleLimit --config /path/to/simple-limit_other.yml
 ```
 
-Now, we need this to run on a loop, we should use `loop` option indicating `--interval` as seconds
-
+Now, we need this to run on a loop, we should use `loop` option indicating `--interval` as seconds:
 ```bash
 $ python bots.py loop SimpleLimit --interval 300
 ```

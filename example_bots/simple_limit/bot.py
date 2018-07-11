@@ -134,7 +134,8 @@ class SimpleLimit(Bot):
     def _get_market_client(self, name, market):
         for client in self.market_clients:
             if client.name == name:
-                return client(market, client=None, dry_run=self.dry_run, timeout=self.timeout)
+                return client(market, client=None, dry_run=self.dry_run,
+                              timeout=self.timeout, logger=self.log, store=self.store)
         raise NotImplementedError(f'Client {name} not found!')
 
     def truncate_amount(self, value):
