@@ -25,12 +25,8 @@ def get_store(logger: Logger=None):
     return store_cls(logger=logger, **kwargs)
 
 
-class Store(object):
+class BaseStore:
     source = ''
-    serializers = {
-        'json': j,
-        'pickle': p,
-    }
 
     def __init__(self, logger: Logger=None):
         assert self.source, 'A source name must be defined!'
@@ -40,6 +36,13 @@ class Store(object):
     def configure(cls, settings):
         """Configure the storage method with app settings"""
         return {}
+
+
+class Store(BaseStore):
+    serializers = {
+        'json': j,
+        'pickle': p,
+    }
 
     # GET --------------------------------------------------------------------
     def __get(self, method, *path, cast=None, serializer=None, **kwargs):
