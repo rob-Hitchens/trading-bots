@@ -144,11 +144,8 @@ class BotRegistry:
             self.bots.check_configs_ready()
         else:
             self.bots.check_bots_ready()
-        try:
-            return self.configs[config_name.lower()]
-        except KeyError:
-            raise LookupError(
-                "Bot '%s' doesn't have a '%s' config." % (self.label, config_name))
+
+        return self.configs.get(config_name.lower(), {})
 
     def get_configs(self):
         """
