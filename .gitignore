@@ -176,5 +176,4 @@ venv.bak/
 secrets.yml
 
 # Logs
-/logs/
-!/logs/.gitkeep
+/log.txt
