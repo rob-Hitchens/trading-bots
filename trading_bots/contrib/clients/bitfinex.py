@@ -9,7 +9,7 @@ class BitfinexPublic(BaseClient):
     name = 'Bitfinex'
 
     def _client(self):
-        return Bitfinex.Public(timeout=self.timeout, logger=self.log, store=self.store)
+        return Bitfinex.Public(timeout=self.timeout)
 
 
 class BitfinexAuth(BaseClient):
@@ -18,7 +18,7 @@ class BitfinexAuth(BaseClient):
     def _client(self):
         key = self.credentials['key']
         secret = self.credentials['secret']
-        return Bitfinex.Auth(key, secret, timeout=self.timeout, logger=self.log, store=self.store)
+        return Bitfinex.Auth(key, secret, timeout=self.timeout)
 
 
 class BitfinexMarket(MarketClient, BitfinexPublic):
