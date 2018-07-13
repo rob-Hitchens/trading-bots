@@ -298,7 +298,6 @@ class Bots:
     def get_config(self, bot_label, config_name=None, require_ready=True):
         """
         Return the config matching the given bot_label and config_name.
-        As a shortcut, bot_label may be in the form <bot_label>.<config_name>.
         config_name is case-insensitive.
         Raise LookupError if no bot exists with this label, or no config
         exists with this name in the bot. Raise ValueError if called with a
@@ -310,7 +309,7 @@ class Bots:
             self.check_bots_ready()
 
         if config_name is None:
-            bot_label, config_name = bot_label.split('.')
+            config_name = defaults.BOT_CONFIG
 
         bot = self.get_bot(bot_label)
 
