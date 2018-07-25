@@ -1,6 +1,10 @@
 import trading_api_wrappers as wrappers
 
-from . import Converter
+from .base import Converter
+
+__all__ = [
+    'OpenExchangeRates'
+]
 
 
 class OpenExchangeRates(Converter):
