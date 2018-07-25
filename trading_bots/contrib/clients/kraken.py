@@ -1,6 +1,14 @@
 from trading_api_wrappers import Kraken
 
-from . import *
+from .base import *
+
+__all__ = [
+    'KrakenPublic',
+    'KrakenAuth',
+    'KrakenMarket',
+    'KrakenWallet',
+    'KrakenTrading',
+]
 
 
 class KrakenPublic(BaseClient):

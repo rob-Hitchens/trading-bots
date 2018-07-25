@@ -1,6 +1,14 @@
 from trading_api_wrappers import Bitfinex
 
-from . import *
+from .base import *
+
+__all__ = [
+    'BitfinexPublic',
+    'BitfinexAuth',
+    'BitfinexMarket',
+    'BitfinexWallet',
+    'BitfinexTrading',
+]
 
 DEFAULT_WALLET_TYPE = 'exchange'
 

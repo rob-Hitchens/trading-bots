@@ -1,7 +1,15 @@
 from trading_api_wrappers import Bitstamp
 
 from trading_bots.utils import truncate
-from . import *
+from .base import *
+
+__all__ = [
+    'BitstampPublic',
+    'BitstampAuth',
+    'BitstampMarket',
+    'BitstampWallet',
+    'BitstampTrading',
+]
 
 
 class BitstampPublic(BaseClient):
