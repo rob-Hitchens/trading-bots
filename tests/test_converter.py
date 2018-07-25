@@ -2,24 +2,20 @@ from collections import namedtuple
 from operator import attrgetter
 
 import pytest
-from simple_settings import settings
 
-from trading_bots.contrib.converters import Converter
-from trading_bots.contrib.converters.bitcoin_average import BitcoinAverage
-from trading_bots.contrib.converters.coinmarketcap import CoinMarketCap
-from trading_bots.contrib.converters.currencylayer import CurrencyLayer
-from trading_bots.contrib.converters.open_exchange_rates import OpenExchangeRates
+from trading_bots.conf import settings
+from trading_bots.contrib import converters
 
 CREDENTIALS = settings.credentials
 
 CRYPTO_CONVERTERS = [
-    BitcoinAverage(),
-    CoinMarketCap(),
+    converters.BitcoinAverage(),
+    converters.CoinMarketCap(),
 ]
 
 FIAT_CONVERTERS = [
-    CurrencyLayer(CREDENTIALS.get('CurrencyLayer')),
-    OpenExchangeRates(CREDENTIALS.get('OpenExchangeRates')),
+    converters.CurrencyLayer(CREDENTIALS.get('CurrencyLayer')),
+    converters.OpenExchangeRates(CREDENTIALS.get('OpenExchangeRates')),
 ]
 
 Market = namedtuple('market', 'base quote id')
@@ -60,11 +56,11 @@ def fiat_market(request):
 
 
 def test_crypto_converter_instance(crypto_converter):
-    assert isinstance(crypto_converter, Converter)
+    assert isinstance(crypto_converter, converters.Converter)
 
 
 def test_fiat_converter_instance(fiat_converter):
-    assert isinstance(fiat_converter, Converter)
+    assert isinstance(fiat_converter, converters.Converter)
 
 
 def test_get_crypto_rate(crypto_converter, crypto_market):
