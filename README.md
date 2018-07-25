@@ -1,4 +1,4 @@
-![Buda](https://raw.githubusercontent.com/budacom/trading-bots/master/static/buda-logo.svg?sanitize=true)
+[![Buda](https://api.buda.com/images/logo-dark.svg)](https://www.buda.com)
 
 # Trading Bots 🤖
 

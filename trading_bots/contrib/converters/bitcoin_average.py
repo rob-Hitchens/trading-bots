@@ -1,6 +1,10 @@
 import requests
 
-from . import Converter
+from .base import Converter
+
+__all__ = [
+    'BitcoinAverage'
+]
 
 
 class BitcoinAverage(Converter):

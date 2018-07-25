@@ -1,7 +1,7 @@
-import logging
 import time
 from logging import Logger
 
+from .logging import get_logger
 from .logging import setup_logger
 from ..conf import defaults
 from ..conf import settings
@@ -21,23 +21,32 @@ class Bot:
         # Set configuration
         self.config = config
         self.config_name = config_name or defaults.BOT_CONFIG
-        # Set logger
-        self.log = logger or logging.getLogger(f'bots.{self.label}')
-        self.setup_logger(self.log)
-        # Set store
-        self.store = get_store(self.log)
         # Configs
         self.dry_run = settings.dry_run
         self.timeout = settings.timeout
-        self.env = 'TEST' if self.dry_run else 'LIVE'
+        self.env = self.get_env()
+        # Set logger
+        self.log = logger or self.get_logger()
+        self.setup_logger(self.log)
+        # Set store
+        self.store = get_store(self.log)
         # Time
         self.timestamp = None
+        self.run_time = None
+        # User setup
+        self._setup(self.config)
 
-    def _setup(self, config):
-        raise NotImplementedError
+    def _setup(self, config: dict):
+        pass
 
     def _algorithm(self):
         raise NotImplementedError
+
+    def _abort(self):
+        pass
+
+    def _post_exec(self):
+        pass
 
     def execute(self):
         self.timestamp = int(time.time())
@@ -45,9 +54,7 @@ class Bot:
         self.log.info(f'{msg:-<80}')
 
         try:
-            if self.dry_run:
-                self.log.warning('DRY RUN!')
-            self._setup(self.config)
+            self.check_dry_run()
             self._algorithm()
 
         except Exception:
@@ -61,13 +68,14 @@ class Bot:
             raise
 
         finally:
-            run_time = time.time() - self.timestamp
-            self.log.info(f'Run time: {run_time:,.4f} seconds')
-            msg = f'Ending {self.label} {self.timestamp}: {get_iso_time_str()} '
+            if self.timestamp:
+                self.run_time = time.time() - self.timestamp
+                self.log.info(f'Run time: {self.run_time:,.4f} seconds')
+                msg = f'Ending {self.label} {self.timestamp}: {get_iso_time_str()} '
+            else:
+                msg = f'Ending {self.label}: {get_iso_time_str()} '
             self.log.info(f'{msg:-<80}')
-
-    def _abort(self):
-        raise NotImplementedError
+            self._post_exec()
 
     def abort(self):
         try:
@@ -79,7 +87,18 @@ class Bot:
 
     def setup_logger(self, logger: Logger):
         logger_kwargs = self._logger_kwargs()
-        setup_logger(logger, logger_name=self.label, **logger_kwargs)
+        self.log = setup_logger(logger, logger_name=self.label, **logger_kwargs)
+
+    def get_logger(self):
+        return get_logger(self.label)
 
     def _logger_kwargs(self):
-        return {'tag': settings.tag, 'bot': self.label, 'config': self.config_name}
+        return {'tag': settings.tag, 'env': self.env, 'bot': self.label, 'config': self.config_name}
+
+    def check_dry_run(self):
+        if self.dry_run:
+            self.log.warning('DRY RUN!')
+        return self.dry_run
+
+    def get_env(self):
+        return 'TEST' if self.dry_run else 'LIVE'

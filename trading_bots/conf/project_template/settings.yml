@@ -9,9 +9,12 @@ dry_run: False
 
 installed_bots:
 
-log_level:
-  low: debug
-  high: info
+logging:
+  bots_root: bots
+  filename: bots.log
+  level:
+    low: debug
+    high: info
 
 storage:
   name: json
