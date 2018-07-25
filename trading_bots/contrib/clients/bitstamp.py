@@ -53,11 +53,21 @@ class BitstampMarket(MarketClient, BitstampPublic):
 
 class BitstampWallet(WalletClient, BitstampAuth):
 
+    def _pending_withdraw_amount(self):
+        return sum([
+            float(w['amount']) for w in self.get_withdrawals()
+            if w['status'] in [0]  # status: 0 (open), 1 (in process), 2 (finished), 3 (canceled) or 4 (failed)
+        ])
+
     def _balance(self, currency, available_only=False):
         balances = self.client.account_balance()
-        key = 'available' if available_only else 'balance'
-        balance = balances[f'{currency.lower()}_{key}']
-        return float(balance)
+        if available_only:
+            balance = float(balances[f'{currency.lower()}_available'])
+        else:
+            # Bitstamp includes withdrawals with status 0 on balance amount
+            pending_withdrawal_amount = self._pending_withdraw_amount()
+            balance = float(balances[f'{currency.lower()}_balance']) - pending_withdrawal_amount
+        return balance
 
     def _deposits(self, currency: str):
         tx_type = '0'  # '0': deposit; '1': withdrawal; '2': market trade; '14': sub account transfer.
