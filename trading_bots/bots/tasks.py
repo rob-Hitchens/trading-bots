@@ -2,7 +2,6 @@ import asyncio
 import time
 
 import trading_bots
-from .logging import setup_pygogo
 from .registry import bots
 from ..conf import settings
 
@@ -10,17 +9,16 @@ from ..conf import settings
 class BotTask:
     """Class representing a Bot Task."""
 
-    def __init__(self, bot_label: str, config_name: str, log_filename: str=None):
+    def __init__(self, bot_label: str, config_name: str):
         settings.configure()
         trading_bots.setup()
         self.config_name = config_name
         self.bot_cls = bots.get_bot(bot_label).cls
         self.bot_config = bots.get_config(bot_label, config_name)
-        setup_pygogo(logger_name=self.bot_cls.label, file=log_filename)
+        self.bot_instance = self.bot_cls(config=self.bot_config, config_name=self.config_name)
 
     def run_once(self):
-        bot_instance = self.bot_cls(config=self.bot_config, config_name=self.config_name)
-        bot_instance.execute()
+        self.bot_instance.execute()
 
     def loop(self, interval: int):
         while True:

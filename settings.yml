@@ -11,14 +11,16 @@ installed_bots:
   - example_bots.example
   - example_bots.simple_limit
 
-log_level:
-  low: debug
-  high: info
+logging:
+  bots_root: bots
+  filename: bots.log
+  level:
+    low: debug
+    high: info
 
 storage:
   name: json
-  settings:
-    filename: store.json
+  filename: store.json
 
 timeout: 120
 

@@ -14,13 +14,6 @@ config_option = click.option(
          "By default, configuration files must be placed inside the Bot's 'configs/' folder. "
          f"Defaults to '{defaults.BOT_CONFIG}'.")
 
-log_option = click.option(
-    '--log', '-l',
-    default=defaults.LOG_FILE,
-    help="Log to this file. "
-         "By default, logs are saved to the 'logs/' folder'. "
-         f"Defaults to '{defaults.LOG_FILE}'.")
-
 interval_option = click.option(
     '--interval', '-i',
     default=defaults.LOOP_INTERVAL,
@@ -47,10 +40,9 @@ def print_banner():
     click.echo()
 
 
-def print_options(bot, config, log, settings):
+def print_options(bot, config, settings):
     click.echo(f'Global settings')
     click.echo(f'- Settings files: {settings}')
-    click.echo(f'- Logs file: {log}')
     click.echo()
     click.echo(f'Bot: {bot}')
     click.echo(f"- Config file: {config or 'default'}")
@@ -65,28 +57,26 @@ def cli():
 @cli.command(short_help="Execute a bot's logic")
 @bot_argument
 @config_option
-@log_option
 @settings_option
-def run(bot, config, log, settings):
+def run(bot, config, settings):
     """Run a specified BOT by label e.g. 'MyBot'"""
-    print_options(bot, config, log, settings)
+    print_options(bot, config, settings)
     click.echo()
-    bot_task = BotTask(bot, config, log)
+    bot_task = BotTask(bot, config)
     bot_task.run_once()
 
 
 @cli.command(short_help="Schedule a bot to run on an interval")
 @bot_argument
 @config_option
-@log_option
 @interval_option
 @settings_option
-def loop(bot, config, log, interval, settings):
+def loop(bot, config, interval, settings):
     """Schedule a BOT (by label) to run on an interval, e.g. 'MyBot -i 60'"""
-    print_options(bot, config, log, settings)
+    print_options(bot, config, settings)
     click.echo(f'- Interval: {interval}s')
     click.echo()
-    bot_task = BotTask(bot, config, log)
+    bot_task = BotTask(bot, config)
     bot_task.run_loop(interval)
 
 

@@ -1,12 +1,18 @@
+from . import defaults
+
 tag = 'TradingBots'
 
 dry_run = True
 
 installed_bots = ()
 
-log_level = {
-    'low': 'debug',
-    'high': 'info',
+logging = {
+    'bots_root': defaults.BOTS_LOG_ROOT,
+    'filename': defaults.LOG_FILE,
+    'levels': {
+        'low': 'debug',
+        'high': 'info',
+    },
 }
 
 storage = {
