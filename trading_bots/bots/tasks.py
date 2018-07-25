@@ -1,5 +1,6 @@
 import asyncio
 import time
+from logging import Logger
 
 import trading_bots
 from .registry import bots
@@ -9,13 +10,13 @@ from ..conf import settings
 class BotTask:
     """Class representing a Bot Task."""
 
-    def __init__(self, bot_label: str, config_name: str):
+    def __init__(self, bot_label: str, config_name: str, logger: Logger=None):
         settings.configure()
         trading_bots.setup()
         self.config_name = config_name
         self.bot_cls = bots.get_bot(bot_label).cls
         self.bot_config = bots.get_config(bot_label, config_name)
-        self.bot_instance = self.bot_cls(config=self.bot_config, config_name=self.config_name)
+        self.bot_instance = self.bot_cls(self.bot_config, self.config_name, logger)
 
     def run_once(self):
         self.bot_instance.execute()
