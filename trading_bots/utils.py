@@ -13,7 +13,7 @@ DECIMALS = {
     # Crypto
     'BCH': 8,
     'BTC': 8,
-    'ETH': 9,
+    'ETH': 8,
     'LTC': 8,
 }
 
