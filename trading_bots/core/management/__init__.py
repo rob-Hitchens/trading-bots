@@ -1,3 +1,5 @@
+import os
+
 import click
 
 from trading_bots.bots import BotTask
@@ -42,7 +44,7 @@ def print_banner():
 
 def print_options(bot, config, settings):
     click.echo(f'Global settings')
-    click.echo(f'- Settings files: {settings}')
+    click.echo(f"- Settings files: {os.environ.get('SETTINGS', settings)}")
     click.echo()
     click.echo(f'Bot: {bot}')
     click.echo(f"- Config file: {config or 'default'}")

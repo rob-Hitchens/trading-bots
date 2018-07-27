@@ -15,34 +15,27 @@ file = settings.logging.get('file')
 console_format = '%(asctime)s UTC | %(tag)s | %(env)-4s | %(bot)s | %(config)s | %(levelname)-8s | %(message)s'
 console_formatter = logging.Formatter(console_format)
 
+if file:
+    low_level_handler = pygogo.handlers.file_hdlr(file)
+else:
+    low_level_handler = pygogo.handlers.stdout_hdlr()
 
-def setup_pygogo(logger_name, low_level_handler=None, high_level_handler=None,
-                 monolog=True, verbose=None):
-
-    if low_level_handler is None:
-        if file:
-            low_level_handler = pygogo.handlers.file_hdlr(file)
-        else:
-            low_level_handler = pygogo.handlers.stdout_hdlr()
-
-    gogo = pygogo.Gogo(
-        name=config['bots_root'],
-        low_formatter=console_formatter,
-        high_formatter=console_formatter,
-        low_level=log_level['low'],
-        high_level=log_level['high'],
-        low_hdlr=low_level_handler,
-        high_hdlr=high_level_handler or pygogo.handlers.stderr_hdlr(),
-        verbose=verbose,
-        monolog=monolog,
-    )
-
-    return gogo.get_logger(logger_name)
+gogo = pygogo.Gogo(
+    name=config['bots_root'],
+    low_formatter=console_formatter,
+    high_formatter=console_formatter,
+    low_level=log_level['low'],
+    high_level=log_level['high'],
+    low_hdlr=low_level_handler,
+    high_hdlr=pygogo.handlers.stderr_hdlr(),
+    monolog=True,
+)
 
 
-def setup_logger(logger: Logger, logger_name: str, **logger_kwargs):
+def setup_logger(logger: Logger, **logger_kwargs):
     if not logger.handlers:
-        logger = setup_pygogo(logger_name)
+        logger_name = logger.name.partition('.')[2]
+        logger = gogo.get_logger(logger_name)
     structured_filter = get_structured_filter(**logger_kwargs)
     for handler in logger.handlers:
         handler.addFilter(structured_filter)
