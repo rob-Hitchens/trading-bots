@@ -12,13 +12,6 @@ DEFAULT_CONSOLE_FORMAT = '%(asctime)s UTC | %(name)s | %(levelname)-8s | %(messa
 # Set formatter
 formatter = logging.Formatter(DEFAULT_CONSOLE_FORMAT)
 
-# Configure root logger
-logging.basicConfig(
-    level=logging.DEBUG,
-    format=DEFAULT_CONSOLE_FORMAT,
-    handlers=[logging.NullHandler()]
-)
-
 # Initialize pygogo logger
 going = pygogo.Gogo(
     name='tradingbots',
