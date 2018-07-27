@@ -87,10 +87,14 @@ class Bot:
 
     def setup_logger(self, logger: Logger):
         logger_kwargs = self._logger_kwargs()
-        self.log = setup_logger(logger, logger_name=self.label, **logger_kwargs)
+        self.log = setup_logger(logger, **logger_kwargs)
+
+    def _get_logger_name(self):
+        return f'{self.label}.{self.config_name}'
 
     def get_logger(self):
-        return get_logger(self.label)
+        logger_name = self._get_logger_name()
+        return get_logger(logger_name)
 
     def _logger_kwargs(self):
         return {'tag': settings.tag, 'env': self.env, 'bot': self.label, 'config': self.config_name}
