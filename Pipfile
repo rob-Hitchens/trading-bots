@@ -8,17 +8,11 @@ cached-property = "*"
 click = "*"
 jinja2 = "*"
 requests = "*"
-pygogo = "*"
-pyyaml = "*"
+simple-settings = {version = "*", extras = ["yaml"]}
 trading-api-wrappers = "*"
-
-[packages.simple-settings]
-extras = [ "yaml",]
+pygogo = "*"
 
 [dev-packages]
-pytest = "*"
+trading-bots = {editable = true, path = "."}
 twine = "*"
-
-[dev-packages.trading-bots]
-editable = true
-path = "."
+pytest = "*"
