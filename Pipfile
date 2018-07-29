@@ -7,10 +7,11 @@ name = "pypi"
 cached-property = "*"
 click = "*"
 jinja2 = "*"
-requests = "*"
-simple-settings = {version = "*", extras = ["yaml"]}
-trading-api-wrappers = "*"
 pygogo = "*"
+pyyaml = "*"
+requests = "*"
+simple-settings = "*"
+trading-api-wrappers = "*"
 
 [dev-packages]
 trading-bots = {editable = true, path = "."}
