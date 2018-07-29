@@ -1,5 +1,5 @@
 -i https://pypi.org/simple
-backoff==1.5.0
+backoff==1.6.0
 cached-property==1.4.3
 certifi==2018.4.16
 chardet==3.0.4
@@ -8,8 +8,8 @@ idna==2.7
 jinja2==2.10
 markupsafe==1.0
 pygogo==0.12.0
-pyyaml==3.12
+pyyaml==3.13
 requests==2.19.1
 simple-settings==0.13.0
-trading-api-wrappers==0.12.3
-urllib3==1.23
+trading-api-wrappers==0.13.1
+urllib3==1.23; python_version != '3.1.*'
