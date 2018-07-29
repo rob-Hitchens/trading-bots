@@ -14,12 +14,16 @@ class BotTask:
         settings.configure()
         trading_bots.setup()
         self.config_name = config_name
+        self.logger = logger
         self.bot_cls = bots.get_bot(bot_label).cls
         self.bot_config = bots.get_config(bot_label, config_name)
-        self.bot_instance = self.bot_cls(self.bot_config, self.config_name, logger)
+
+    def get_bot_instance(self):
+        return self.bot_cls(self.bot_config, self.config_name, self.logger)
 
     def run_once(self):
-        self.bot_instance.execute()
+        bot_instance = self.get_bot_instance()
+        bot_instance.execute()
 
     def loop(self, interval: int):
         while True:
