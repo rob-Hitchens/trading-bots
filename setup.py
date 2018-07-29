@@ -27,8 +27,7 @@ REQUIRED = [
     'jinja2',
     'requests',
     'pygogo',
-    'pyyaml',
-    'simple-settings',
+    'simple-settings[yaml]',
     'trading-api-wrappers',
 ]
 
