@@ -25,6 +25,10 @@ class BotTask:
         bot_instance = self.get_bot_instance()
         bot_instance.execute()
 
+    def abort(self):
+        bot_instance = self.get_bot_instance()
+        bot_instance.abort()
+
     def loop(self, interval: int):
         while True:
             self.run_once()
