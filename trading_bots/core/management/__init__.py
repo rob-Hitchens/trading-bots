@@ -82,6 +82,18 @@ def loop(bot, config, interval, settings):
     bot_task.run_loop(interval)
 
 
+@cli.command(short_help="Execute a bot's abort command")
+@bot_argument
+@config_option
+@settings_option
+def abort(bot, config, settings):
+    """Run the abort command of a specified BOT by label e.g. 'MyBot'"""
+    print_options(bot, config, settings)
+    click.echo()
+    bot_task = BotTask(bot, config)
+    bot_task.abort()
+
+
 @cli.command(short_help="Creates a Trading-Bots project directory structure")
 @click.option('--name', prompt=True, default='MyAwesomeProject')
 @click.option('--directory', prompt=True, default='.')
