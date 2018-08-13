@@ -30,10 +30,10 @@
         },
         "certifi": {
             "hashes": [
-                "sha256:13e698f54293db9f89122b0581843a782ad0934a4fe0172d2a980ba77fc61bb7",
-                "sha256:9fa520c1bacfb634fa7af20a76bcbd3d5fb390481724c597da32c719a7dca4b0"
+                "sha256:4c1d68a1408dd090d2f3a869aa94c3947cc1d967821d1ed303208c9f41f0f2f4",
+                "sha256:b6e8b28b2b7e771a41ecdd12d4d43262ecab52adebbafa42c77d6b57fb6ad3a4"
             ],
-            "version": "==2018.4.16"
+            "version": "==2018.8.13"
         },
         "chardet": {
             "hashes": [
@@ -114,11 +114,11 @@
         },
         "trading-api-wrappers": {
             "hashes": [
-                "sha256:2607a6eb56d7a55d042e72977f2191641a43f99214d6cd8a126d14a390eaa391",
-                "sha256:4bafe850b5f87bab5dd7bb4c3c83efafc23eb8aed41367cce5290e8b9ad9262a"
+                "sha256:981295ef5459b8571cf9e48933d86cd8c56583d727585bec71cfbb76e03bdcd2",
+                "sha256:9d0673f79d2e44df4aec81861a7b5b08475e385348be59a803ad8c4d52574e84"
             ],
             "index": "pypi",
-            "version": "==0.13.1"
+            "version": "==0.14.1"
         },
         "urllib3": {
             "hashes": [
@@ -160,10 +160,10 @@
         },
         "certifi": {
             "hashes": [
-                "sha256:13e698f54293db9f89122b0581843a782ad0934a4fe0172d2a980ba77fc61bb7",
-                "sha256:9fa520c1bacfb634fa7af20a76bcbd3d5fb390481724c597da32c719a7dca4b0"
+                "sha256:4c1d68a1408dd090d2f3a869aa94c3947cc1d967821d1ed303208c9f41f0f2f4",
+                "sha256:b6e8b28b2b7e771a41ecdd12d4d43262ecab52adebbafa42c77d6b57fb6ad3a4"
             ],
-            "version": "==2018.4.16"
+            "version": "==2018.8.13"
         },
         "chardet": {
             "hashes": [
@@ -211,11 +211,11 @@
         },
         "more-itertools": {
             "hashes": [
-                "sha256:2b6b9893337bfd9166bee6a62c2b0c9fe7735dcf85948b387ec8cba30e85d8e8",
-                "sha256:6703844a52d3588f951883005efcf555e49566a48afd4db4e965d69b883980d3",
-                "sha256:a18d870ef2ffca2b8463c0070ad17b5978056f403fb64e3f15fe62a52db21cc0"
+                "sha256:c187a73da93e7a8acc0001572aebc7e3c69daf7bf6881a2cea10650bd4420092",
+                "sha256:c476b5d3a34e12d40130bc2f935028b5f636df8f372dc2c1c01dc19681b2039e",
+                "sha256:fcbfeaea0be121980e15bc97b3817b5202ca73d0eae185b4550cbfce2a3ebb3d"
             ],
-            "version": "==4.2.0"
+            "version": "==4.3.0"
         },
         "pkginfo": {
             "hashes": [
@@ -250,11 +250,11 @@
         },
         "pytest": {
             "hashes": [
-                "sha256:341ec10361b64a24accaec3c7ba5f7d5ee1ca4cebea30f76fad3dd12db9f0541",
-                "sha256:952c0389db115437f966c4c2079ae9d54714b9455190e56acebe14e8c38a7efa"
+                "sha256:86a8dbf407e437351cef4dba46736e9c5a6e3c3ac71b2e942209748e76ff2086",
+                "sha256:e74466e97ac14582a8188ff4c53e6cc3810315f342f6096899332ae864c1d432"
             ],
             "index": "pypi",
-            "version": "==3.6.4"
+            "version": "==3.7.1"
         },
         "pyyaml": {
             "hashes": [
@@ -313,11 +313,11 @@
         },
         "trading-api-wrappers": {
             "hashes": [
-                "sha256:2607a6eb56d7a55d042e72977f2191641a43f99214d6cd8a126d14a390eaa391",
-                "sha256:4bafe850b5f87bab5dd7bb4c3c83efafc23eb8aed41367cce5290e8b9ad9262a"
+                "sha256:981295ef5459b8571cf9e48933d86cd8c56583d727585bec71cfbb76e03bdcd2",
+                "sha256:9d0673f79d2e44df4aec81861a7b5b08475e385348be59a803ad8c4d52574e84"
             ],
             "index": "pypi",
-            "version": "==0.13.1"
+            "version": "==0.14.1"
         },
         "trading-bots": {
             "editable": true,

@@ -97,11 +97,12 @@ class BitstampWallet(WalletClient, BitstampAuth):
 
 class BitstampTrading(TradingClient, BitstampAuth, BitstampMarket):
     wallet_client = BitstampWallet
+    # TODO: Bitstamp lists min_order size on quote currency https://www.bitstamp.net/api/v2/trading-pairs-info/
     min_order_amount_mapping = {
-        'BCH': 0.005,
-        'BTC': 0.001,
-        'ETH': 0.01,
-        'LTC': 0.05,
+        'BCH': 0.02,  # ~ 10.00 USD @ 500.00 BTC/USD
+        'BTC': 0.002,  # ~ 10.00 USD @ 5000.00 BTC/USD
+        'ETH': 0.05,  # ~ 10.00 USD @ 200.00 ETH/USD
+        'LTC': 0.2,  # ~ 10.00 USD @ 50.00 LTC/USD
     }
 
     def _open_orders(self):
