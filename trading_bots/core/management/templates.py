@@ -5,12 +5,12 @@ from importlib import import_module
 from os import path
 
 import click
+import stringcase
 from jinja2 import Template
 
 import trading_bots
 from trading_bots.conf import defaults
 from trading_bots.conf import settings
-from ..utils import to_snake_case
 
 # Rewrite the following suffixes when determining the target filename.
 rewrite_template_suffixes = (
@@ -55,17 +55,17 @@ def handle_template(bot_or_project, name, target=None, **options):
     base_subdir = '%s_template' % bot_or_project
     base_directory = '%s_directory' % bot_or_project
     target_name = '%s_target' % bot_or_project
-    camel_case_name = 'camel_case_%s_name' % bot_or_project
-    camel_case_value = ''.join(x for x in name.title() if x != '_')
+    pascal_case_name = 'pascal_case_%s_name' % bot_or_project
+    pascal_case_value = stringcase.pascalcase(name)
     snake_case_name = 'snake_case_%s_name' % bot_or_project
-    snake_case_value = to_snake_case(name)
+    snake_case_value = stringcase.snakecase(name)
 
     context = {
         **options,
         base_name: name,
         base_directory: top_dir,
         target_name: target,
-        camel_case_name: camel_case_value,
+        pascal_case_name: pascal_case_value,
         snake_case_name: snake_case_value,
         'settings_files': defaults.SETTINGS,
         'version': getattr(trading_bots.__version__, '__version__'),
