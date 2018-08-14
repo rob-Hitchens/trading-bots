@@ -9,7 +9,7 @@ installed_bots = ()
 logging = {
     'bots_root': defaults.BOTS_LOG_ROOT,
     'filename': defaults.LOG_FILE,
-    'levels': {
+    'level': {
         'low': 'debug',
         'high': 'info',
     },
@@ -17,9 +17,7 @@ logging = {
 
 storage = {
     'name': 'json',
-    'settings': {
-        'filename': 'store.json',
-    },
+    'filename': 'store.json',
 }
 
 timeout = 120

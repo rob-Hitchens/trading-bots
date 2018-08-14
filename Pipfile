@@ -12,6 +12,7 @@ pyyaml = "*"
 requests = "*"
 simple-settings = "*"
 trading-api-wrappers = "*"
+stringcase = "*"
 
 [dev-packages]
 trading-bots = {editable = true, path = "."}
