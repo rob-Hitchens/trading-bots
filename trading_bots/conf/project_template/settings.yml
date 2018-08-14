@@ -18,8 +18,7 @@ logging:
 
 storage:
   name: json
-  settings:
-    filename: store.json
+  filename: store.json
 
 timeout: 120
 
