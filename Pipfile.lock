@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "5440300c1b6eb326c252daefefea47d0b651bd5559a6bc6cccbf83ee9cf37286"
+            "sha256": "24f33f87ce56c529ad82d438ee348da5cae70efa6c64b1d6d7ea0f924abf3d35"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -111,6 +111,13 @@
             ],
             "index": "pypi",
             "version": "==0.13.0"
+        },
+        "stringcase": {
+            "hashes": [
+                "sha256:48a06980661908efe8d9d34eab2b6c13aefa2163b3ced26972902e3bdfd87008"
+            ],
+            "index": "pypi",
+            "version": "==1.2.0"
         },
         "trading-api-wrappers": {
             "hashes": [
