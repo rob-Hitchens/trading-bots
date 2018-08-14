@@ -29,6 +29,7 @@ REQUIRED = [
     'pygogo',
     'pyyaml',
     'simple-settings',
+    'stringcase',
     'trading-api-wrappers',
 ]
 
