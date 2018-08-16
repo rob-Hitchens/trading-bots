@@ -75,7 +75,8 @@ def _setup(self, config):
     # Set market
     self.market = Market(config['market'])
     # Set buda trading client
-    self.buda = buda.BudaTrading(self.market, self.dry_run, self.timeout, self.log, self.store)
+    self.buda = BudaTrading(
+        self.market, dry_run=self.dry_run, timeout=self.timeout, logger=self.log, store=self.store)
 ```
 
 - Sets market according to the `market` on our config.

@@ -11,7 +11,8 @@ class RelativeOrders(Bot):
         # Set market
         self.market = Market(config['market'])
         # Set buda trading client
-        self.buda = BudaTrading(self.market, self.dry_run, self.timeout, self.log, self.store)
+        self.buda = BudaTrading(
+            self.market, dry_run=self.dry_run, timeout=self.timeout, logger=self.log, store=self.store)
 
     def _algorithm(self):
         # PREPARE ORDER PRICES
