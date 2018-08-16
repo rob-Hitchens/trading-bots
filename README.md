@@ -68,7 +68,7 @@ Let’s look at what `startproject` created:
 
 These files are:
 
-- The outer `root/` directory is just a container for your project. Its name doesn’t matter to Trading-Bots; you can rename it to anything you like.
+- The outer `root/` directory is just a container for your project. Its name doesn't matter to Trading-Bots; you can rename it to anything you like.
 - `bots.py`: A handy CLI that lets you interact with this Trading-Bots project in various ways.
 - `secrets.yml`: A configuration file to store your project secrets like API keys and wallets **DON'T SHARE YOUR SECRETS WITH ANYONE!**
 - `settings.yml`: Global settings for this project.
@@ -85,8 +85,7 @@ Each bot you write in Trading-Bots consists of a Python package that follows a c
 with a utility that automatically generates the basic directory structure of a bot, so you can focus on writing code 
 rather than creating directories.
 
-Your bots can live anywhere on your Python path. In this tutorial, we’ll create our poll app right next to your 
-`bots.py` file so that it can be imported as its own top-level module, rather than a submodule of `my_project`.
+Your bots can live anywhere on your Python path. In this tutorial, we’ll create our bot as a submodule of `my_project`.
 
 To create your bot, make sure you're in the same directory as `bots.py` and type this command:
 
@@ -108,7 +107,7 @@ That’ll create a directory `my_bot`, which is laid out like this:
 
 This directory structure will house the `MyBot` bot.
 
-You'll also have to "install" your new bot, by adding it to the project's `settings.yml` file. 
+You'll also have to *"install"* your new bot, by adding it to the project's `settings.yml` file. 
 
 `settings.yml`
 ```yaml
@@ -118,7 +117,7 @@ installed_bots:
 
 Configure you Buda.com account's `API_KEY` and `API_SECRET` onto `secrets.yml` credentials:
 
-> You can mail support to request your API credentials on [soporte@buda.com](mailto:soporte@buda.com)
+> You can request your API credentials on you account's profile on [Buda.com](hhtps://www.buda.com)
 
 `secrets.yml`
 ```yaml
