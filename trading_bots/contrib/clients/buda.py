@@ -22,7 +22,6 @@ def paginated(data_attr: str):
             while True:
                 paginated_data = func(page)
                 new_data = getattr(paginated_data, data_attr)
-                print(len(new_data))
                 data.extend(new_data)
                 page = paginated_data.meta.current_page + 1
                 if page > paginated_data.meta.total_pages:
