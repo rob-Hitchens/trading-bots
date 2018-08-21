@@ -121,11 +121,11 @@
         },
         "trading-api-wrappers": {
             "hashes": [
-                "sha256:0dc4cb1fcfb64440a2ecffb91eb6040ae0f051f346d0a95d63427f519278b948",
-                "sha256:6a42408c552ca5ac8cfced52c97b57dfba7b4f00128de0dc5abb10c12e32e046"
+                "sha256:2ec3bdbbb898785da30ad6aed56070fae7ddd43806ec484e664a445ed7bbb7d9",
+                "sha256:62c111f18fc5ed94b01f2a76ff20a19dd451806e8fc31fb4d039e63ba5c67eb7"
             ],
             "index": "pypi",
-            "version": "==0.15.0"
+            "version": "==0.15.1"
         },
         "urllib3": {
             "hashes": [
@@ -327,11 +327,11 @@
         },
         "trading-api-wrappers": {
             "hashes": [
-                "sha256:0dc4cb1fcfb64440a2ecffb91eb6040ae0f051f346d0a95d63427f519278b948",
-                "sha256:6a42408c552ca5ac8cfced52c97b57dfba7b4f00128de0dc5abb10c12e32e046"
+                "sha256:2ec3bdbbb898785da30ad6aed56070fae7ddd43806ec484e664a445ed7bbb7d9",
+                "sha256:62c111f18fc5ed94b01f2a76ff20a19dd451806e8fc31fb4d039e63ba5c67eb7"
             ],
             "index": "pypi",
-            "version": "==0.15.0"
+            "version": "==0.15.1"
         },
         "trading-bots": {
             "editable": true,
