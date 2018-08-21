@@ -22,7 +22,6 @@ def paginated(data_attr: str):
             while True:
                 paginated_data = func(page)
                 new_data = getattr(paginated_data, data_attr)
-                print(len(new_data))
                 data.extend(new_data)
                 page = paginated_data.meta.current_page + 1
                 if page > paginated_data.meta.total_pages:
@@ -41,16 +40,22 @@ class BudaBase(BaseClient):
 
 class BudaPublic(BudaBase):
 
+    class Client(APIClient, Buda.Public):
+        pass
+
     def _client(self):
-        return Buda.Public(self.timeout, host=self.host)
+        return self.Client(self.timeout, host=self.host)
 
 
 class BudaAuth(BudaBase):
 
+    class Client(APIClient, Buda.Auth):
+        pass
+
     def _client(self):
         key = self.credentials['key']
         secret = self.credentials['secret']
-        return Buda.Auth(key, secret, timeout=self.timeout, host=self.host)
+        return self.Client(key, secret, timeout=self.timeout, host=self.host)
 
 
 class BudaMarket(MarketClient, BudaPublic):
@@ -91,7 +96,7 @@ class BudaWallet(WalletClient, BudaAuth):
     def _withdrawals(self, currency: str):
         @paginated('withdrawals')
         def withdrawals(page):
-            return self.client.withdrawals_pages(currency, page=page, per_page=PER_PAGE)
+            return self.client.withdrawal_pages(currency, page=page, per_page=PER_PAGE)
         return withdrawals()
 
     def _withdraw(self, currency: str, amount: float, address: str, subtract_fee: bool=False):

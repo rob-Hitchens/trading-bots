@@ -14,17 +14,23 @@ __all__ = [
 class KrakenPublic(BaseClient):
     name = 'Kraken'
 
+    class Client(APIClient, Kraken.Public):
+        pass
+
     def _client(self):
-        return Kraken.Public(timeout=self.timeout)
+        return self.Client(timeout=self.timeout)
 
 
 class KrakenAuth(BaseClient):
     name = 'Kraken'
 
+    class Client(APIClient, Kraken.Auth):
+        pass
+
     def _client(self):
         key = self.credentials['key']
         secret = self.credentials['secret']
-        return Kraken.Auth(key, secret, timeout=self.timeout)
+        return self.Client(key, secret, timeout=self.timeout)
 
 
 class KrakenMarket(MarketClient, KrakenPublic):

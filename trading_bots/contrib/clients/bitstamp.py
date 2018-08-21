@@ -15,18 +15,24 @@ __all__ = [
 class BitstampPublic(BaseClient):
     name = 'Bitstamp'
 
+    class Client(APIClient, Bitstamp.Public):
+        pass
+
     def _client(self):
-        return Bitstamp.Public(timeout=self.timeout)
+        return self.Client(timeout=self.timeout)
 
 
 class BitstampAuth(BaseClient):
     name = 'Bitstamp'
 
+    class Client(APIClient, Bitstamp.Auth):
+        pass
+
     def _client(self):
         key = self.credentials['key']
         secret = self.credentials['secret']
         customer_id = self.credentials['customer_id']
-        return Bitstamp.Auth(key, secret, customer_id, timeout=self.timeout)
+        return self.Client(key, secret, customer_id, timeout=self.timeout)
 
 
 class BitstampMarket(MarketClient, BitstampPublic):
