@@ -104,6 +104,13 @@
             "index": "pypi",
             "version": "==2.19.1"
         },
+        "requests-toolbelt": {
+            "hashes": [
+                "sha256:42c9c170abc2cacb78b8ab23ac957945c7716249206f90874651971a4acff237",
+                "sha256:f6a531936c6fa4c6cfce1b9c10d5c4f498d16528d2a54a22ca00011205a187b5"
+            ],
+            "version": "==0.8.0"
+        },
         "simple-settings": {
             "hashes": [
                 "sha256:b47bedc64eedade60553ca2125c9cbd60610077ae216a17679611c06fc93a8e1",
@@ -121,11 +128,11 @@
         },
         "trading-api-wrappers": {
             "hashes": [
-                "sha256:2ec3bdbbb898785da30ad6aed56070fae7ddd43806ec484e664a445ed7bbb7d9",
-                "sha256:62c111f18fc5ed94b01f2a76ff20a19dd451806e8fc31fb4d039e63ba5c67eb7"
+                "sha256:b007a16e6e5db901eb315fd5ce673010d288afcbbd2753a75cf2de9be29c1392",
+                "sha256:c3086e538e51be4f4d55fa18c817bed4b5d0d9a25a1ad173b87d9e2703f129ce"
             ],
             "index": "pypi",
-            "version": "==0.15.1"
+            "version": "==0.15.2"
         },
         "urllib3": {
             "hashes": [
@@ -327,11 +334,11 @@
         },
         "trading-api-wrappers": {
             "hashes": [
-                "sha256:2ec3bdbbb898785da30ad6aed56070fae7ddd43806ec484e664a445ed7bbb7d9",
-                "sha256:62c111f18fc5ed94b01f2a76ff20a19dd451806e8fc31fb4d039e63ba5c67eb7"
+                "sha256:b007a16e6e5db901eb315fd5ce673010d288afcbbd2753a75cf2de9be29c1392",
+                "sha256:c3086e538e51be4f4d55fa18c817bed4b5d0d9a25a1ad173b87d9e2703f129ce"
             ],
             "index": "pypi",
-            "version": "==0.15.1"
+            "version": "==0.15.2"
         },
         "trading-bots": {
             "editable": true,
