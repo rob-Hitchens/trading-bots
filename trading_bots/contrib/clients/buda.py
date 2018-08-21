@@ -91,7 +91,7 @@ class BudaWallet(WalletClient, BudaAuth):
     def _withdrawals(self, currency: str):
         @paginated('withdrawals')
         def withdrawals(page):
-            return self.client.withdrawals_pages(currency, page=page, per_page=PER_PAGE)
+            return self.client.withdrawal_pages(currency, page=page, per_page=PER_PAGE)
         return withdrawals()
 
     def _withdraw(self, currency: str, amount: float, address: str, subtract_fee: bool=False):
