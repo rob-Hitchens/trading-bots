@@ -2,8 +2,11 @@ from collections import namedtuple
 from enum import Enum
 from logging import Logger
 
+import trading_api_wrappers.base as api
 from cached_property import cached_property
+from requests_toolbelt import user_agent
 
+from trading_bots.__version__ import __version__
 from trading_bots.conf import settings
 from trading_bots.core.logging import get_logger
 from trading_bots.core.storage import get_store
@@ -14,6 +17,8 @@ __all__ = [
     'OrderBook',
     'OrderBookEmptyError',
     'OrderType',
+    'APIClientSession',
+    'APIClient',
     'BaseClient',
     'CurrencyClientMixin',
     'MarketClientMixin',
@@ -60,6 +65,14 @@ class Side(Enum):
 class OrderType(Enum):
     MARKET = 'market'
     LIMIT = 'limit'
+
+
+class APIClientSession(api.ClientSession):
+    user_agent = user_agent('trading-bots', __version__)
+
+
+class APIClient(api.Client):
+    session_cls = APIClientSession
 
 
 class BaseClient:

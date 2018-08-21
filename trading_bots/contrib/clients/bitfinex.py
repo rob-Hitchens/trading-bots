@@ -16,17 +16,23 @@ DEFAULT_WALLET_TYPE = 'exchange'
 class BitfinexPublic(BaseClient):
     name = 'Bitfinex'
 
+    class Client(APIClient, Bitfinex.Public):
+        pass
+
     def _client(self):
-        return Bitfinex.Public(timeout=self.timeout)
+        return self.Client(timeout=self.timeout)
 
 
 class BitfinexAuth(BaseClient):
     name = 'Bitfinex'
 
+    class Client(APIClient, Bitfinex.Auth):
+        pass
+
     def _client(self):
         key = self.credentials['key']
         secret = self.credentials['secret']
-        return Bitfinex.Auth(key, secret, timeout=self.timeout)
+        return self.Client(key, secret, timeout=self.timeout)
 
 
 class BitfinexMarket(MarketClient, BitfinexPublic):

@@ -40,16 +40,22 @@ class BudaBase(BaseClient):
 
 class BudaPublic(BudaBase):
 
+    class Client(APIClient, Buda.Public):
+        pass
+
     def _client(self):
-        return Buda.Public(self.timeout, host=self.host)
+        return self.Client(self.timeout, host=self.host)
 
 
 class BudaAuth(BudaBase):
 
+    class Client(APIClient, Buda.Auth):
+        pass
+
     def _client(self):
         key = self.credentials['key']
         secret = self.credentials['secret']
-        return Buda.Auth(key, secret, timeout=self.timeout, host=self.host)
+        return self.Client(key, secret, timeout=self.timeout, host=self.host)
 
 
 class BudaMarket(MarketClient, BudaPublic):
