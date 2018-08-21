@@ -11,6 +11,25 @@ __all__ = [
     'BudaTrading',
 ]
 
+PER_PAGE = 300
+
+
+def paginated(data_attr: str):
+    def func_wrapper(func):
+        def wrapper():
+            data = []
+            page = 1
+            while True:
+                paginated_data = func(page)
+                new_data = getattr(paginated_data, data_attr)
+                print(len(new_data))
+                data.extend(new_data)
+                page = paginated_data.meta.current_page + 1
+                if page > paginated_data.meta.total_pages:
+                    return data
+        return wrapper
+    return func_wrapper
+
 
 class BudaBase(BaseClient):
     name = 'Buda'
@@ -64,10 +83,16 @@ class BudaWallet(WalletClient, BudaAuth):
         return items
 
     def _deposits(self, currency: str):
-        return self.client.deposits(currency)
+        @paginated('deposits')
+        def deposits(page):
+            return self.client.deposit_pages(currency, page=page, per_page=PER_PAGE)
+        return deposits()
 
     def _withdrawals(self, currency: str):
-        return self.client.withdrawals(currency)
+        @paginated('withdrawals')
+        def withdrawals(page):
+            return self.client.withdrawals_pages(currency, page=page, per_page=PER_PAGE)
+        return withdrawals()
 
     def _withdraw(self, currency: str, amount: float, address: str, subtract_fee: bool=False):
         if self.dry_run:
@@ -98,7 +123,11 @@ class BudaTrading(TradingClient, BudaAuth, BudaMarket):
     }
 
     def _open_orders(self):
-        return self.client.order_pages(self.market_id, state=Buda.OrderState.PENDING).orders
+        @paginated('orders')
+        def open_orders(page):
+            state = Buda.OrderState.PENDING
+            return self.client.order_pages(self.market_id, page=page, per_page=PER_PAGE, state=state)
+        return open_orders()
 
     def _order_amount(self, order):
         return order.amount.amount
