@@ -1,5 +1,6 @@
 import math
 from datetime import datetime
+from decimal import Decimal
 
 DECIMALS = {
     # Fiat
@@ -27,12 +28,12 @@ def get_iso_time_str(timestamp=None):
     return timestamp.isoformat(sep=' ', timespec='seconds')
 
 
-def truncate(value: float, decimal_places: int):
+def truncate(value: Decimal, n_digits: int) -> Decimal:
     """Truncates a value to a number of decimals places"""
-    return math.trunc(value * (10 ** decimal_places)) / (10 ** decimal_places)
+    return math.trunc(value * (10 ** n_digits)) / (10 ** n_digits)
 
 
-def truncate_to(value: float, currency: str):
+def truncate_to(value: Decimal, currency: str) -> Decimal:
     """Truncates a value to the number of decimals corresponding to the currency"""
     decimal_places = DECIMALS.get(currency.upper(), 2)
     return truncate(value, decimal_places)
