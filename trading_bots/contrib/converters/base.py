@@ -25,7 +25,7 @@ class ConverterValidationError(Exception):
         super().__init__()
 
 
-class Converter(object):
+class Converter:
     name = ''
     slug = ''
 
