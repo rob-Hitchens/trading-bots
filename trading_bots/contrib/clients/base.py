@@ -35,7 +35,8 @@ class BaseClient(abc.ABC):
     def __init__(self, client_params: Dict=None, dry_run: bool=False,
                  logger: Logger=None, store=None, **kwargs):
         assert self.name, 'A name must be defined for the client!'
-        self.credentials: Dict = settings.credentials.get(self.name, {})
+        credentials = getattr(settings, 'credentials', {})
+        self.credentials: Dict = credentials.get(self.name, {})
         self.client_params: Dict = self._build_client_params(client_params or {})
         self.dry_run: bool = dry_run
         self.log: Logger = logger or get_logger(__name__)
