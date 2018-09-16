@@ -82,7 +82,7 @@ class Bot:
             self.log.warning(f'Aborting {self.label} bot...')
             self._abort()
         except Exception:
-            self.log.critical(f'Failed to abort!!!', exc_info=True)
+            self.log.critical('Failed to abort!', exc_info=True)
             raise
 
     def setup_logger(self, logger: Logger):
