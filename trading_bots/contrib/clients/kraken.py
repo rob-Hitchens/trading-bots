@@ -1,6 +1,14 @@
+from abc import ABC
+from decimal import Decimal
+from typing import Dict, List, Any
+
+import maya
+from cached_property import cached_property
 from trading_api_wrappers import Kraken
 
 from .base import *
+from .errors import *
+from .models import *
 
 __all__ = [
     'KrakenPublic',
@@ -11,52 +19,71 @@ __all__ = [
 ]
 
 
-class KrakenPublic(BaseClient):
-    name = 'Kraken'
-
-    class Client(APIClient, Kraken.Public):
-        pass
-
-    def _client(self):
-        return self.Client(timeout=self.timeout)
+class KrakenBase(BaseClient, ABC):
+    name: str = 'Kraken'
 
 
-class KrakenAuth(BaseClient):
-    name = 'Kraken'
+class KrakenPublic(KrakenBase):
 
-    class Client(APIClient, Kraken.Auth):
-        pass
+    @cached_property
+    def client(self) -> Kraken.Public:
+        return Kraken.Public(**self.client_params)
 
-    def _client(self):
-        key = self.credentials['key']
-        secret = self.credentials['secret']
-        return self.Client(key, secret, timeout=self.timeout)
+
+class KrakenAuth(KrakenBase):
+
+    @cached_property
+    def client(self) -> Kraken.Auth:
+        self.check_credentials()
+        return Kraken.Auth(**self.client_params)
 
 
 class KrakenMarket(MarketClient, KrakenPublic):
 
-    def _market_id(self):
+    def _market_id(self) -> str:
         return str(self.market).replace('BTC', 'XBT')
 
-    def _ticker(self):
+    def _ticker(self) -> Ticker:
         result = self.client.ticker(symbol=self.market_id)['result']
         # Get result first key
-        return result[next(iter(result))]
+        ticker = result[next(iter(result))]
+        return self._parse_ticker(ticker)
+
+    def _parse_ticker(self, ticker: Dict) -> Ticker:
+        currency = self.market.quote
+        last = Money(ticker['c'][0], currency)
+        _open = ticker.get('o')
+        if _open:
+            _open = Money(_open, currency)
+        return Ticker(
+            market=self.market,
+            bid=Money(ticker['b'][0], currency),
+            ask=Money(ticker['a'][0], currency),
+            last=last,
+            open=_open,
+            high=Money(ticker['h'][1], currency),
+            low=Money(ticker['l'][1], currency),
+            close=last,
+            change=None,
+            percentage=None,
+            average=None,
+            vwap=Money(ticker['p'][1], currency),
+            info=ticker,
+        )
 
     def _order_book(self, side: Side=None):
         result = self.client.order_book(symbol=self.market_id)['result']
         # Get result first key
         order_book = result[next(iter(result))]
-        bids, asks = order_book['bids'], order_book['asks']
-        if side:
-            return bids if side == Side.BUY else asks
-        return OrderBook(bids=bids, asks=asks)
+        return self._parse_order_book(order_book)
 
-    def _order_book_entry_amount(self, order):
-        return float(order[1])
+    def _trades_since(self, since: int) -> List[Trade]:
+        # TODO: Implement trades_since on Kraken
+        raise NotImplementedError
 
-    def _order_book_entry_price(self, order):
-        return float(order[0])
+    def _parse_trade(self, trade: Any) -> Trade:
+        # TODO: Implement parse_trade on Kraken
+        raise NotImplementedError
 
 
 class KrakenWallet(WalletClient, KrakenAuth):
@@ -67,48 +94,57 @@ class KrakenWallet(WalletClient, KrakenAuth):
         'LTC': 0.01,
     }
 
-    def _balance(self, currency, available_only=False):
-        # TODO: How to get available_only?
-        if available_only:
-            self.log.warning('available_only option is not implemented!')
-        asset = currency.replace('BTC', 'XXBT').replace('ETH', 'XETH').replace('XLM', 'XXLM').replace('USD', 'ZUSD')
+    def _balance(self) -> Balance:
+        self.log.warning('Kraken only returns total balance')
+        asset = self.currency.replace('BTC', 'XXBT').replace('ETH', 'XETH').replace('XLM', 'XXLM').replace('USD', 'ZUSD')
         balance = self.client.balance()
-        return float(balance['result'][asset])
+        return Balance(
+            total=balance['result'][asset],
+            free=None,
+            used=None,
+        )
 
-    @staticmethod
-    def _filter_state(items, state: str=None):
-        if state:
-            items = [i for i in items if i['status'] == state]
-        return items
-
-    def _deposits(self, currency: str):
+    def _deposits(self, limit: int=None) -> List[Deposit]:
         mapping = {
             'BCH': ('BCH', 'Bitcoin Cash'),
             'BTC': ('XBT', 'Bitcoin'),
             'ETH': ('XETH', 'Ether (Hex)'),
             'LTC': ('LTC', 'Litecoin'),
         }
-        asset, method = mapping[currency]
-        return self.client.deposit_status(asset, method)['result']
+        asset, method = mapping[self.currency]
+        deposits = self.client.deposit_status(asset, method)['result']
+        return self._parse_transactions_limit(deposits, TxType.DEPOSIT, limit)
 
-    def _withdrawals(self, currency: str):
+    def _deposits_since(self, since: int) -> List[Deposit]:
+        raise NotSupported(self.log, 'Kraken only returns recent trades')
+
+    def _withdrawals(self, limit: int=None) -> List[Withdrawal]:
         mapping = {
             'BCH': ('BCH', 'Bitcoin Cash'),
             'BTC': ('XBT', 'Bitcoin'),
             'ETH': ('XETH', 'Ether'),
             'LTC': ('LTC', 'Litecoin'),
         }
-        asset, method = mapping[currency]
-        return self.client.withdraw_status(asset, method)['result']
+        asset, method = mapping[self.currency]
+        withdrawals = self.client.withdraw_status(asset, method)['result']
+        return self._parse_transactions_limit(withdrawals, TxType.WITHDRAWAL, limit)
 
-    def _withdraw(self, currency: str, amount: float, address: str, subtract_fee: bool=False):
-        asset = currency.replace('BTC', 'XBT').replace('ETH', 'XETH')
-        return self.client.withdraw(asset, amount, address)
+    def _withdrawals_since(self, since: int) -> List[Withdrawal]:
+        raise NotSupported(self.log, 'Kraken only returns recent trades')
+
+    def _withdraw(self, amount: Decimal, address: str, subtract_fee: bool=False, **params) -> Withdrawal:
+        asset = self.currency.replace('BTC', 'XBT').replace('ETH', 'XETH')
+        withdraw = self.client.withdraw(asset, amount, address, **params)
+        return self._parse_transaction(withdraw, TxType.WITHDRAWAL)
+
+    def _parse_transaction(self, tx: Dict, tx_type: TxType) -> Transaction:
+        # TODO: Implement Kraken parse_transaction
+        return super()._parse_transaction(tx, tx_type)
 
 
 class KrakenTrading(TradingClient, KrakenAuth, KrakenMarket):
-    wallet_client = KrakenWallet
-    has_margin_trading = True
+    _wallet_cls = KrakenWallet
+    has_batch_cancel = False
     min_order_amount_mapping = {
         'BCH': 0.002,
         'BTC': 0.002,
@@ -116,27 +152,80 @@ class KrakenTrading(TradingClient, KrakenAuth, KrakenMarket):
         'LTC': 0.002,
     }
 
-    def _open_orders(self):
-        return self.client.open_orders()['result']['open'].values()
+    def _order(self, order_id: str) -> Order:
+        order = self.client.query_orders([order_id])['result'][order_id]
+        return self._parse_order(order)
 
-    def _order_amount(self, order):
-        return order['remaining_amount']
+    def _open_orders(self, limit: int=None) -> List[Order]:
+        orders = self.client.open_orders()['result']['open'].values()
+        return self._parse_orders_limit(orders, limit)
 
-    def _cancel_order(self, order):
-        return self.client.cancel_order(order['id'])
+    def _closed_orders(self, limit: int=None) -> List[Order]:
+        # TODO: Iterate results for closed_orders on Kraken
+        orders = self.client.closed_orders()['result']['closed'].values()
+        return self._parse_orders_limit(orders, limit)
 
-    def _order_details(self, order_id: int):
-        return self.client.query_orders([order_id])['result'][order_id]
+    def _closed_orders_since(self, since: int) -> List[Order]:
+        # TODO: Iterate results for closed_orders_since on Kraken
+        orders = self.client.closed_orders(start=since)['result']['closed'].values()
+        return self._parse_orders_since(orders, since)
 
-    def _place_order(self, side: Side, o_type: OrderType, amount: float, price: float=None):
-        return self.client.add_order(self.market_id, side.value, o_type.value, amount, price)
+    def _cancel_order(self, order_id: str) -> None:
+        self.client.cancel_order(order_id)
 
-    def _position_amount(self, position):
-        return float(position['vol'])
+    def _cancel_orders(self, order_ids: List[str]=None) -> None:
+        raise NotSupported
 
-    def _open_positions(self):
-        positions = self.client.open_positions()['result'].values()
-        return [p for p in positions if p['pair'] == self.market_id and p['posstatus'] == 'open']
+    def _place_order(self, side: Side, order_type: OrderType, amount: Decimal, price: Decimal=None) -> Order:
+        order = self.client.add_order(self.market_id, side.value, order_type.value, float(amount), float(price))
+        return self._parse_order(order)
 
-    def _open_position(self, side: Side, p_type: OrderType, amount: float, price: float=None, leverage: float=None):
-        return self.client.add_order(self.market_id, side.value, p_type.value, amount, price, leverage=leverage)
+    def _parse_order(self, order: Dict) -> Order:
+        description = order['descr']
+        side = Side(description['type'])
+        try:
+            order_type = OrderType(description['ordertype'])
+        except ValueError:
+            order_type = None
+        pair: str = description['pair']
+        if pair.startswith('USDT'):
+            market = Market('USDT', pair[:3])
+        else:
+            market = Market.from_code(pair)
+        maya_dt = maya.MayaDT(float(order['opentm']))
+        amount = self.safe_money(order, 'vol', market.base)
+        filled = self.safe_money(order, 'vol_exec', market.base)
+        remaining = amount - filled
+        fee = None
+        cost = self.safe_money(order, 'cost', market.quote)
+        price = self.safe_money(description, 'price', market.quote)
+        if not price:
+            price = self.safe_money(description, 'price2', market.quote)
+        if not price:
+            price = self.safe_money(order, 'price', market.quote)
+        if 'fee' in order:
+            flags = order['oflags']
+            fee_amount = order.get('fee', 0)
+            fee_currency = None
+            if flags.find('fciq') >= 0:
+                fee_currency = market.quote
+            elif flags.find('fcib') >= 0:
+                fee_currency = market.base
+            if fee_currency:
+                fee = Money(fee_amount, fee_currency)
+        return Order(
+            id=order.get('id'),
+            market=market,
+            type=order_type,
+            side=side,
+            status=order['status'],
+            amount=amount,
+            remaining=remaining,
+            filled=filled,
+            cost=cost,
+            fee=fee,
+            price=price,
+            info=order,
+            timestamp=maya_dt.epoch,
+            datetime=maya_dt.datetime(),
+        )
