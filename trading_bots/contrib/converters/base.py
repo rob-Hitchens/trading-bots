@@ -30,7 +30,8 @@ class Converter:
 
     def __init__(self, return_decimal: bool=False, **kwargs):
         assert self.name, 'A converter must have a name!'
-        self.credentials = settings.credentials.get(self.name)
+        credentials = getattr(settings, 'credentials', {})
+        self.credentials = credentials.get(self.name)
         self.return_decimal = return_decimal
 
     def _format_number(self, value: (str, Number)) -> Number:
