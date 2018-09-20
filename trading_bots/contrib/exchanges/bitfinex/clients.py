@@ -1,16 +1,16 @@
 from abc import ABC
 from decimal import Decimal
 from logging import Logger
-from typing import Dict, List
+from typing import Dict, List, Set
 
 import maya
 from cached_property import cached_property
 from trading_api_wrappers import Bitfinex
 from trading_api_wrappers import BitfinexV2
 
-from .base import *
-from .errors import *
-from .models import *
+from ..base.clients import *
+from ..base.errors import *
+from ..base.models import *
 
 __all__ = [
     'BitfinexPublic',
@@ -25,6 +25,11 @@ DEFAULT_WALLET_TYPE = 'exchange'
 
 class BitfinexBase(BaseClient, ABC):
     name: str = 'Bitfinex'
+
+    @cached_property
+    def markets(self) -> Set[Market]:
+        symbols = self._fetch('Markets')(self.client.symbols)()
+        return {Market.from_code(symbol.upper()) for symbol in symbols}
 
 
 class BitfinexPublic(BitfinexBase):
@@ -145,8 +150,9 @@ class BitfinexWallet(WalletClient, BitfinexAuth):
     }
 
     def __init__(self, currency: str, client_params: Dict=None, dry_run: bool=False,
-                 logger: Logger=None, store=None, wallet_type: str=DEFAULT_WALLET_TYPE, **kwargs):
-        super().__init__(currency, client_params, dry_run, logger, store, **kwargs)
+                 logger: Logger=None, store=None, name: str=None,
+                 wallet_type: str=DEFAULT_WALLET_TYPE, **kwargs):
+        super().__init__(currency, client_params, dry_run, logger, store, name, **kwargs)
         self.wallet_type = wallet_type
 
     def _balance(self) -> Balance:

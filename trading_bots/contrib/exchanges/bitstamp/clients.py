@@ -1,15 +1,15 @@
 import abc
 from decimal import Decimal
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Set
 
 import maya
 from cached_property import cached_property
 from trading_api_wrappers import Bitstamp
 
-from trading_bots.contrib.clients.models import *
 from trading_bots.utils import truncate
-from .base import *
-from .errors import *
+from ..base.clients import *
+from ..base.errors import *
+from ..base.models import *
 
 __all__ = [
     'BitstampPublic',
@@ -24,6 +24,11 @@ side_mapping = {'0': Side.BUY, '1': Side.SELL}
 
 class BitstampBase(BaseClient, abc.ABC):
     name = 'Bitstamp'
+
+    @cached_property
+    def markets(self) -> Set[Market]:
+        pairs = self._fetch('Markets')(self.client.trading_pairs_info)()
+        return {Market(*pair['name'].split('/')) for pair in pairs}
 
 
 class BitstampPublic(BitstampBase):

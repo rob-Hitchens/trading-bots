@@ -1,14 +1,14 @@
 from abc import ABC
 from decimal import Decimal
-from typing import Dict, List, Any
+from typing import Any, Dict, List, Set
 
 import maya
 from cached_property import cached_property
 from trading_api_wrappers import Kraken
 
-from .base import *
-from .errors import *
-from .models import *
+from ..base.clients import *
+from ..base.errors import *
+from ..base.models import *
 
 __all__ = [
     'KrakenPublic',
@@ -21,6 +21,27 @@ __all__ = [
 
 class KrakenBase(BaseClient, ABC):
     name: str = 'Kraken'
+
+    @cached_property
+    def markets(self) -> Set[Market]:
+        # NOTE: Doesn't support Kraken dark pool markets
+        pairs = self._fetch('Markets')(self.client.asset_pairs)()['result']
+
+        def generate_markets():
+            for key, pair in pairs.items():
+                base = pair['base']
+                quote = pair['quote']
+                if (base[0] == 'X') or (base[0] == 'Z'):
+                    base = base[1:]
+                if (quote[0] == 'X') or (quote[0] == 'Z'):
+                    quote = quote[1:]
+                base = self._parse_common_currency(base)
+                quote = self._parse_common_currency(quote)
+                dark_pool = '.d' in key
+                if not dark_pool:
+                    yield Market(base, quote)
+
+        return set(generate_markets())
 
 
 class KrakenPublic(KrakenBase):

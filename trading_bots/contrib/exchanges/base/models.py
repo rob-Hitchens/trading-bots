@@ -7,9 +7,9 @@ from typing import Any, List, Optional, Tuple, Union
 import maya
 from cached_property import cached_property
 
+from trading_bots.contrib.money import Money
 from .errors import OrderBookEmpty, QuotationError
 from .utils import parse_money
-from ..money import Money
 
 __all__ = [
     'Number',
@@ -68,10 +68,38 @@ class Market:
     def __str__(self) -> str:
         return str(self.code)
 
+    def __lt__(self, other: (str, 'Market')) -> bool:
+        if isinstance(other, Market):
+            other = other.code
+        return self.code < other
+
+    def __lte__(self, other: (str, 'Market')) -> bool:
+        if isinstance(other, Market):
+            other = other.code
+        return self.code <= other
+
+    def __gt__(self, other: (str, 'Market')) -> bool:
+        if isinstance(other, Market):
+            other = other.code
+        return self.code > other
+
+    def __gte__(self, other: (str, 'Market')) -> bool:
+        if isinstance(other, Market):
+            other = other.code
+        return self.code >= other
+
     def __eq__(self, other: (str, 'Market')) -> bool:
         if isinstance(other, Market):
             other = other.code
         return self.code == other
+
+    def __ne__(self, other: (str, 'Market')) -> bool:
+        if isinstance(other, Market):
+            other = other.code
+        return not self.code == other
+
+    def __bool__(self) -> bool:
+        return bool(self.code)
 
 
 class Side(Enum):
@@ -270,6 +298,8 @@ class OrderBook(Timestamped):
         return volume_total, volume_bid, volume_ask
 
     def _quote_book_price(self, side: Side, amount: Decimal) -> Money:
+        # Flip sides, for a buy quotation we need to quote the sell book (asks)
+        side = Side.SELL if side == side.BUY else Side.BUY
         order_book_side = self.get_book_side(side)
         remaining = amount
         quote = 0

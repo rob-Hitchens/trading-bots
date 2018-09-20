@@ -3,7 +3,7 @@ from decimal import Decimal
 from functools import wraps
 from logging import Logger
 from operator import attrgetter
-from typing import Any, Dict, Callable, List, Optional, Type, Tuple, Union
+from typing import Any, Dict, Callable, List, Optional, Set, Type, Tuple, Union
 
 import maya
 from cached_property import cached_property
@@ -33,7 +33,7 @@ class BaseClient(abc.ABC):
     name: str = None
 
     def __init__(self, client_params: Dict=None, dry_run: bool=False,
-                 logger: Logger=None, store=None, **kwargs):
+                 logger: Logger=None, store=None, name: str=None, **kwargs):
         assert self.name, 'A name must be defined for the client!'
         credentials = getattr(settings, 'credentials', {})
         self.credentials: Dict = credentials.get(self.name, {})
@@ -41,10 +41,26 @@ class BaseClient(abc.ABC):
         self.dry_run: bool = dry_run
         self.log: Logger = logger or get_logger(__name__)
         self.store = store or get_store(self.log)
+        if name is not None:
+            self.name = name
+
+    common_currencies = {
+        'XBT': 'BTC',
+        'BCC': 'BCH',
+        'DRK': 'DASH',
+    }
+
+    def _parse_common_currency(self, currency: str) -> str:
+        return self.common_currencies.get(currency, currency)
 
     @cached_property
     @abc.abstractmethod
     def client(self):
+        pass
+
+    @cached_property
+    @abc.abstractmethod
+    def markets(self) -> Set[Market]:
         pass
 
     def _build_client_params(self, params: Dict) -> Dict:
@@ -96,7 +112,6 @@ class BaseClient(abc.ABC):
                     msg = f'{prefix} {msg}'
                 if suffix:
                     msg = f'{msg} {suffix}'
-                self.log.debug(f'Fetching {msg}')
 
                 try:  # Perform fetch
                     result = func(*args, **kwargs)
@@ -107,7 +122,7 @@ class BaseClient(abc.ABC):
                     result_msg = len(result)
                 except TypeError:
                     result_msg = str(result)
-                self.log.info(f'{msg}: {result_msg}')
+                self.log.debug(f'{msg}: {result_msg}')
 
                 return result
 
@@ -138,9 +153,9 @@ class BaseClient(abc.ABC):
 
 class CurrencyClientMixin(abc.ABC):
 
-    def __init__(self, currency: str, client_params: Dict=None,
-                 dry_run: bool=False, logger: Logger=None, store=None, **kwargs):
-        super().__init__(client_params, dry_run, logger, store, **kwargs)
+    def __init__(self, currency: str, client_params: Dict=None, dry_run: bool=False,
+                 logger: Logger=None, store=None, name: str=None, **kwargs):
+        super().__init__(client_params, dry_run, logger, store, name, **kwargs)
         self.currency: str = currency.upper()
         self.currency_id: str = self._currency_id()
 
@@ -153,9 +168,9 @@ class CurrencyClientMixin(abc.ABC):
 
 class MarketClientMixin(abc.ABC):
 
-    def __init__(self, market: Union[str, Market], client_params: Dict=None,
-                 dry_run: bool=False, logger: Logger=None, store=None, **kwargs):
-        super().__init__(client_params, dry_run, logger, store, **kwargs)
+    def __init__(self, market: Union[str, Market], client_params: Dict=None, dry_run: bool=False,
+                 logger: Logger=None, store=None, name: str=None, **kwargs):
+        super().__init__(client_params, dry_run, logger, store, name, **kwargs)
         if not isinstance(market, Market):
             market = Market.from_code(market)
         self.market: Market = market
@@ -172,6 +187,9 @@ class MarketClientMixin(abc.ABC):
 
 
 class MarketClient(MarketClientMixin, BaseClient):
+
+    def __repr__(self):
+        return f'MarketClient({self.name})'
 
     @abc.abstractmethod
     def _ticker(self) -> Ticker:
@@ -223,6 +241,9 @@ class MarketClient(MarketClientMixin, BaseClient):
 class WalletClient(CurrencyClientMixin, BaseClient):
     withdrawal_fees = {}
 
+    def __repr__(self):
+        return f'WalletClient({self.name})'
+
     # Balance
     @abc.abstractmethod
     def _balance(self) -> Balance:
@@ -235,7 +256,7 @@ class WalletClient(CurrencyClientMixin, BaseClient):
     # Transactions
     def _transactions(self, func: Callable, tx_name: str, limit: int=None) -> List[Transaction]:
         return self._fetch_limit(tx_name, self.currency)(func)(limit)
-    
+
     def _transactions_since(self, func: Callable, tx_name: str, since: int) -> List[Transaction]:
         return self._fetch_since(tx_name, self.currency)(func)(since)
 
@@ -338,18 +359,21 @@ class TradingClient(MarketClientMixin, BaseClient):
     has_batch_cancel: bool = False
     min_order_amount_mapping: Dict = {}
 
+    def __repr__(self):
+        return f'TradingClient({self.name})'
+
     class Wallets:
         def __init__(self, cls: Type[WalletClient], market: Market, client_params: Dict,
-                     dry_run: bool, logger: Logger, store, **kwargs):
-            self.base: WalletClient = cls(market.base, client_params, dry_run, logger, store, **kwargs)
-            self.quote: WalletClient = cls(market.quote, client_params, dry_run, logger, store, **kwargs)
+                     dry_run: bool, logger: Logger, store, name: str, **kwargs):
+            self.base: WalletClient = cls(market.base, client_params, dry_run, logger, store, name, **kwargs)
+            self.quote: WalletClient = cls(market.quote, client_params, dry_run, logger, store, name, **kwargs)
 
-    def __init__(self, market: Union[str, Market], client_params: Dict=None,
-                 dry_run: bool=False, logger: Logger=None, store=None, **kwargs):
-        super().__init__(market, client_params, dry_run, logger, store, **kwargs)
+    def __init__(self, market: Union[str, Market], client_params: Dict=None, dry_run: bool=False,
+                 logger: Logger=None, store=None, name: str=None, **kwargs):
+        super().__init__(market, client_params, dry_run, logger, store, name, **kwargs)
         assert self._wallet_cls, 'A wallet cls must be defined for the client!'
         self.wallets = self.Wallets(self._wallet_cls, self.market, client_params,
-                                    dry_run, logger, store, **kwargs)
+                                    dry_run, logger, store, name, **kwargs)
 
     # Trading ----------------------------------------------------------------
     @abc.abstractmethod

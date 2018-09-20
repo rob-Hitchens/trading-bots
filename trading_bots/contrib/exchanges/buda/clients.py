@@ -1,16 +1,15 @@
 from abc import ABC
 from decimal import Decimal
 from functools import wraps
-from typing import List, Optional
+from typing import List, Optional, Set
 
 import maya
 from cached_property import cached_property
 from trading_api_wrappers import Buda
 
-from .base import *
-from .errors import *
-from .models import *
-from ..money import Money
+from ..base.clients import *
+from ..base.errors import *
+from ..base.models import *
 
 __all__ = [
     'BudaBase',
@@ -65,6 +64,11 @@ def paginated_since(data_attr: str, max_limit: int):
 class BudaBase(BaseClient, ABC):
     name = 'Buda'
 
+    @cached_property
+    def markets(self) -> Set[Market]:
+        markets = self._fetch('Markets')(self.client.markets)()
+        return {Market(*market.id.split('-')) for market in markets}
+
 
 class BudaPublic(BudaBase):
 
@@ -76,7 +80,7 @@ class BudaPublic(BudaBase):
 class BudaAuth(BudaBase):
 
     @cached_property
-    def client(self):
+    def client(self) -> Buda.Auth:
         self.check_credentials()
         return Buda.Auth(**self.client_params)
 

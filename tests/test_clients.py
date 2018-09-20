@@ -6,18 +6,19 @@ from operator import attrgetter
 import maya
 import pytest
 
-from trading_bots.contrib.clients import *
-from trading_bots.contrib.clients.errors import *
-from trading_bots.contrib.clients.models import *
+from trading_bots.contrib.exchanges import *
+from trading_bots.contrib.exchanges.base.clients import *
+from trading_bots.contrib.exchanges.base.errors import *
+from trading_bots.contrib.exchanges.base.exchange import *
+from trading_bots.contrib.exchanges.base.models import *
 
-Clients = namedtuple('Clients', 'market wallet trading')
-Exchange = namedtuple('Exchange', 'clients name market')
+E = namedtuple('Exchange', 'exchange name market')
 
 EXCHANGES = [
-    Exchange(Clients(BitfinexMarket, BitfinexWallet, BitfinexTrading), 'bitfinex', Market('BTC', 'USD')),
-    Exchange(Clients(BitstampMarket, BitstampWallet, BitstampTrading), 'bitstamp', Market('BTC', 'USD')),
-    Exchange(Clients(BudaMarket, BudaWallet, BudaTrading), 'buda', Market('BTC', 'CLP')),
-    Exchange(Clients(KrakenMarket, KrakenWallet, KrakenTrading), 'kraken', Market('ETH', 'BTC')),
+    E(Bitfinex, 'bitfinex', Market('BTC', 'USD')),
+    E(Bitstamp, 'bitstamp', Market('BTC', 'USD')),
+    E(Buda, 'buda', Market('BTC', 'CLP')),
+    E(Kraken, 'kraken', Market('ETH', 'BTC')),
 ]
 
 
@@ -33,11 +34,32 @@ def skip_allowed_errors(func):
     return wrapper
 
 
+# BaseClient ----------------------------------------------------------------
+
+@pytest.fixture(params=EXCHANGES, ids=attrgetter('name'))
+def exchange(request) -> Exchange:
+    return request.param.exchange()
+
+
+class TestExchange:
+
+    @skip_allowed_errors
+    def test_isinstance(self, exchange):
+        assert isinstance(exchange, Exchange)
+
+    @skip_allowed_errors
+    def test_markets(self, exchange):
+        markets = exchange.markets
+        assert markets
+        for market in markets:
+            assert isinstance(market, Market)
+
+
 # MarketClient ----------------------------------------------------------------
 
 @pytest.fixture(params=EXCHANGES, ids=attrgetter('name'))
 def market_client(request) -> MarketClient:
-    return request.param.clients.market(request.param.market)
+    return request.param.exchange().Market(request.param.market)
 
 
 class TestMarketClient:
@@ -111,7 +133,7 @@ class TestOrderBook:
 
 @pytest.fixture(params=EXCHANGES, ids=attrgetter('name'))
 def wallet_client(request) -> WalletClient:
-    return request.param.clients.wallet(request.param.market.quote)
+    return request.param.exchange().Wallet(request.param.market.quote)
 
 
 parametrize_tx_type = pytest.mark.parametrize('tx_type', ['withdrawals', 'deposits'])
@@ -166,7 +188,7 @@ class TestWalletClient:
 
 @pytest.fixture(params=EXCHANGES, ids=attrgetter('name'))
 def trading_client(request) -> TradingClient:
-    return request.param.clients.trading(request.param.market)
+    return request.param.exchange().Trading(request.param.market)
 
 
 class TestTradingClient:
@@ -203,6 +225,7 @@ class TestTradingClient:
     
     @skip_allowed_errors
     def test_fetch_closed_orders_since(self, trading_client):
+        from trading_bots.contrib.exchanges.bitfinex.clients import BitfinexTrading
         maya_dt = maya.when('3 months ago')
         if isinstance(trading_client, BitfinexTrading):
             maya_dt = maya.when('1 day ago')
