@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from trading_bots.conf import settings
+from trading_bots.contrib.money import Money
 from trading_bots.core.logging import get_logger
 
 __all__ = [
@@ -78,3 +79,8 @@ class Converter:
         if self.return_decimal:
             amount = Decimal(amount)
         return amount * rate
+
+    def convert_money(self, money: Money, to: str, reverse: bool=False) -> Money:
+        """Convert money to another currency"""
+        converted = self.convert(money.amount, money.currency, to, reverse)
+        return Money(converted, to)
