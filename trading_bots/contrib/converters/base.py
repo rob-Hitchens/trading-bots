@@ -15,14 +15,12 @@ Number = (float, Decimal)
 
 class ConverterRateError(Exception):
     def __init__(self, converter):
-        logger.exception(f'{converter} failed to get rate!')
-        super().__init__()
+        super().__init__(f'{converter} failed to get rate!')
 
 
 class ConverterValidationError(Exception):
     def __init__(self, converter, rate):
-        logger.exception(f'{converter} rate is invalid!: {rate}')
-        super().__init__()
+        super().__init__(f'{converter} rate is invalid!: {rate}')
 
 
 class Converter:
