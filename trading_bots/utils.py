@@ -2,6 +2,8 @@ import math
 from datetime import datetime
 from decimal import Decimal
 
+from trading_bots.contrib.money import Money
+
 DECIMALS = {
     # Fiat
     'ARS': 2,
@@ -37,6 +39,12 @@ def truncate_to(value: Decimal, currency: str) -> Decimal:
     """Truncates a value to the number of decimals corresponding to the currency"""
     decimal_places = DECIMALS.get(currency.upper(), 2)
     return truncate(value, decimal_places)
+
+
+def truncate_money(money: Money) -> Money:
+    """Truncates money amount to the number of decimals corresponding to the currency"""
+    amount = truncate_to(money.amount, money.currency)
+    return Money(amount, money.currency)
 
 
 def spread_value(value: float, spread_p: float):
