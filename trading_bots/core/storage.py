@@ -11,7 +11,7 @@ except ImportError:
     pass
 
 
-def get_store(logger: Logger=None):
+def get_store(logger: Logger=None) -> 'Store':
     """Get and configure the storage backend"""
     from trading_bots.conf import settings
     store_settings = settings.storage
