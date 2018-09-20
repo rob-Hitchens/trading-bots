@@ -30,7 +30,7 @@ def get_iso_time_str(timestamp=None):
 
 def truncate(value: Decimal, n_digits: int) -> Decimal:
     """Truncates a value to a number of decimals places"""
-    return math.trunc(value * (10 ** n_digits)) / (10 ** n_digits)
+    return Decimal(math.trunc(value * (10 ** n_digits))) / (10 ** n_digits)
 
 
 def truncate_to(value: Decimal, currency: str) -> Decimal:
