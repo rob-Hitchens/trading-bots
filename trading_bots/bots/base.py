@@ -22,8 +22,8 @@ class Bot:
         self.config = config
         self.config_name = config_name or defaults.BOT_CONFIG
         # Configs
-        self.dry_run = settings.dry_run
-        self.timeout = settings.timeout
+        self.dry_run = getattr(settings, 'dry_run', False)
+        self.timeout = getattr(settings, 'timeout')
         self.env = self.get_env()
         # Set logger
         self.log = logger or self.get_logger()
