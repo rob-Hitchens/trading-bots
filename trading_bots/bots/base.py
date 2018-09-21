@@ -1,3 +1,4 @@
+import abc
 import time
 from logging import Logger
 
@@ -9,9 +10,8 @@ from ..core.storage import get_store
 from ..utils import get_iso_time_str
 
 
-class Bot:
+class Bot(abc.ABC):
     """Class representing a base Trading Bot and its logic."""
-
     label = ''
     verbose_name = ''
     config_file = ''
@@ -39,8 +39,9 @@ class Bot:
     def _setup(self, config: dict):
         pass
 
+    @abc.abstractmethod
     def _algorithm(self):
-        raise NotImplementedError
+        pass
 
     def _abort(self):
         pass
