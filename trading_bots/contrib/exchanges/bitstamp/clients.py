@@ -1,4 +1,4 @@
-import abc
+from abc import ABC
 from decimal import Decimal
 from typing import Any, Dict, List, Optional, Set
 
@@ -22,7 +22,7 @@ __all__ = [
 side_mapping = {'0': Side.BUY, '1': Side.SELL}
 
 
-class BitstampBase(BaseClient, abc.ABC):
+class BitstampBase(BaseClient, ABC):
     name = 'Bitstamp'
 
     @cached_property
@@ -46,7 +46,7 @@ class BitstampAuth(BitstampBase):
         return Bitstamp.Auth(**self.client_params)
 
 
-class BitstampMarket(MarketClient, BitstampPublic):
+class BitstampMarketBase(MarketClient, ABC):
 
     def _market_id(self) -> str:
         return self.market.code.lower()
@@ -121,6 +121,10 @@ class BitstampMarket(MarketClient, BitstampPublic):
             timestamp=maya_dt.epoch,
             datetime=maya_dt.datetime(),
         )
+
+
+class BitstampMarket(BitstampMarketBase, BitstampPublic):
+    pass
 
 
 class BitstampWallet(WalletClient, BitstampAuth):
@@ -219,14 +223,14 @@ class BitstampWallet(WalletClient, BitstampAuth):
         return self._parse_withdrawal(tx)
 
 
-class BitstampTrading(TradingClient, BitstampAuth, BitstampMarket):
+class BitstampTrading(TradingClient, BitstampMarketBase, BitstampAuth):
     _wallet_cls = BitstampWallet
     # Bitstamp lists min_order size on quote currency https://www.bitstamp.net/api/v2/trading-pairs-info/
     min_order_amount_mapping = {
-        'BCH': 0.02,  # ~ 10.00 USD @ 500.00 BTC/USD
-        'BTC': 0.002,  # ~ 10.00 USD @ 5000.00 BTC/USD
-        'ETH': 0.05,  # ~ 10.00 USD @ 200.00 ETH/USD
-        'LTC': 0.2,  # ~ 10.00 USD @ 50.00 LTC/USD
+        'BCH': Decimal('0.02'),  # ~ 10.00 USD @ 500.00 BTC/USD
+        'BTC': Decimal('0.002'),  # ~ 10.00 USD @ 5000.00 BTC/USD
+        'ETH': Decimal('0.05'),  # ~ 10.00 USD @ 200.00 ETH/USD
+        'LTC': Decimal('0.2'),  # ~ 10.00 USD @ 50.00 LTC/USD
     }
     status_mapping = {
         'In Queue': OrderStatus.OPEN,

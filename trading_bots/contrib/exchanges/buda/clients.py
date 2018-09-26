@@ -20,7 +20,7 @@ __all__ = [
     'BudaTrading',
 ]
 
-PER_PAGE = 100
+PER_PAGE = 300
 
 
 def paginated_limit(data_attr: str, max_limit: int):
@@ -85,7 +85,7 @@ class BudaAuth(BudaBase):
         return Buda.Auth(**self.client_params)
 
 
-class BudaMarket(MarketClient, BudaPublic):
+class BudaMarketBase(MarketClient, ABC):
 
     def _market_id(self) -> str:
         return f'{self.market.base}-{self.market.quote}'.lower()
@@ -154,6 +154,10 @@ class BudaMarket(MarketClient, BudaPublic):
             timestamp=maya_dt.epoch,
             datetime=maya_dt.datetime(),
         )
+
+
+class BudaMarket(BudaMarketBase, BudaPublic):
+    pass
 
 
 class BudaWallet(WalletClient, BudaAuth):
@@ -237,13 +241,13 @@ class BudaWallet(WalletClient, BudaAuth):
         )
 
 
-class BudaTrading(TradingClient, BudaAuth, BudaMarket):
+class BudaTrading(TradingClient, BudaMarketBase, BudaAuth):
     _wallet_cls = BudaWallet
     min_order_amount_mapping = {
-        'BCH': Money('0.0001', 'BCH'),
-        'BTC': Money('0.0001', 'BTC'),
-        'ETH': Money('0.001', 'ETH'),
-        'LTC': Money('0.00001', 'LTC'),
+        'BCH': Decimal('0.0001'),
+        'BTC': Decimal('0.0001'),
+        'ETH': Decimal('0.001'),
+        'LTC': Decimal('0.00001'),
     }
     side_mapping = {
         Side.BUY: Buda.OrderType.BID,

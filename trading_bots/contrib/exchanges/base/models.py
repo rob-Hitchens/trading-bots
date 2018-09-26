@@ -154,11 +154,13 @@ class TxStatus(Enum):
 
 class Timestamped:
     def __post_init__(self):
-        if self.timestamp is None or self.datetime is None:
-            now = maya.now()
-            self.timestamp = now.epoch
-            self.datetime = now.datetime()
-        maya_dt = maya.MayaDT(self.timestamp)
+        if self.timestamp is None:
+            maya_dt = maya.now()
+            self.timestamp = maya_dt.epoch
+        else:
+            maya_dt = maya.MayaDT(self.timestamp)
+        if self.datetime is None:
+            self.datetime = maya_dt.datetime()
         self.iso8601 = maya_dt.iso8601()
 
 
@@ -195,7 +197,7 @@ class Trade(Timestamped):
     id: Optional[str]
     market: Market
     type: Optional[OrderType]
-    side: Side
+    side: Optional[Side]
     amount: Money
     price: Money
     cost: Optional[Money] = field(repr=False)
@@ -204,6 +206,21 @@ class Trade(Timestamped):
     timestamp: int = field(default=None, repr=False)
     datetime: dt = field(default=None, repr=False)
     iso8601: str = field(default=None, init=False)
+
+    @classmethod
+    def create_default(cls, market: Market, amount: Decimal, price: Decimal=None, timestamp: int=None) -> 'Trade':
+        return cls(
+            id=None,
+            market=market,
+            type=None,
+            side=None,
+            amount=Money(amount, market.base),
+            price=Money(price, market.quote),
+            cost=None,
+            fee=None,
+            info=None,
+            timestamp=timestamp,
+        )
 
 
 @dataclass
@@ -226,7 +243,7 @@ class Order(Timestamped):
 
     @classmethod
     def create_default(cls, market: Market, order_type: OrderType, side: Side,
-                       amount: Decimal, price: Decimal=None) -> 'Order':
+                       amount: Decimal, price: Decimal=None, timestamp: int=None) -> 'Order':
         return cls(
             id=None,
             market=market,
@@ -240,6 +257,7 @@ class Order(Timestamped):
             fee=None,
             price=price,
             info=None,
+            timestamp=timestamp,
         )
 
 
@@ -388,7 +406,8 @@ class Transaction(Timestamped):
     iso8601: str = field(default=None, init=False)
 
     @classmethod
-    def create_default(cls, tx_type: TxType, currency: str, amount: Decimal, address: str) -> 'Transaction':
+    def create_default(cls, tx_type: TxType, currency: str, amount: Decimal, address: str,
+                       timestamp=timestamp) -> 'Transaction':
         return cls(
             id=None,
             type=tx_type,
@@ -399,6 +418,7 @@ class Transaction(Timestamped):
             tx_hash=None,
             fee=None,
             info=None,
+            timestamp=timestamp,
         )
 
 

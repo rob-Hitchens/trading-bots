@@ -12,6 +12,7 @@ from requests_toolbelt import user_agent
 from trading_bots.__version__ import __version__
 from trading_bots.conf import settings
 from trading_bots.core.logging import get_logger
+from trading_bots.core.storage import Store
 from trading_bots.core.storage import get_store
 from .errors import *
 from .models import *
@@ -19,8 +20,6 @@ from .utils import parse_money
 
 __all__ = [
     'BaseClient',
-    'CurrencyClientMixin',
-    'MarketClientMixin',
     'MarketClient',
     'WalletClient',
     'TradingClient',
@@ -33,7 +32,7 @@ class BaseClient(abc.ABC):
     name: str = None
 
     def __init__(self, client_params: Dict=None, dry_run: bool=False,
-                 logger: Logger=None, store=None, name: str=None, **kwargs):
+                 logger: Logger=None, store: Store=None, name: str=None, **kwargs):
         assert self.name, 'A name must be defined for the client!'
         credentials = getattr(settings, 'credentials', {})
         self.credentials: Dict = credentials.get(self.name, {})
@@ -152,30 +151,18 @@ class BaseClient(abc.ABC):
         return decorator
 
 
-class CurrencyClientMixin(abc.ABC):
-
-    def __init__(self, currency: str, client_params: Dict=None, dry_run: bool=False,
-                 logger: Logger=None, store=None, name: str=None, **kwargs):
-        super().__init__(client_params, dry_run, logger, store, name, **kwargs)
-        self.currency: str = currency.upper()
-        self.currency_id: str = self._currency_id()
-
-    def _currency_id(self) -> str:
-        return self.currency
-
-    def _parse_money(self, value: Number) -> Optional[Decimal]:
-        return parse_money(value, self.currency)
-
-
-class MarketClientMixin(abc.ABC):
+class MarketClient(BaseClient, abc.ABC):
 
     def __init__(self, market: Union[str, Market], client_params: Dict=None, dry_run: bool=False,
-                 logger: Logger=None, store=None, name: str=None, **kwargs):
+                 logger: Logger=None, store: Store=None, name: str=None, **kwargs):
         super().__init__(client_params, dry_run, logger, store, name, **kwargs)
         if not isinstance(market, Market):
             market = Market.from_code(market)
         self.market: Market = market
         self.market_id: str = self._market_id()
+
+    def __repr__(self):
+        return f'MarketClient({self.name})'
 
     def _market_id(self) -> str:
         return self.market.code
@@ -185,12 +172,6 @@ class MarketClientMixin(abc.ABC):
 
     def _parse_quote(self, value: Number) -> Optional[Decimal]:
         return parse_money(value, self.market.quote)
-
-
-class MarketClient(MarketClientMixin, BaseClient):
-
-    def __repr__(self):
-        return f'MarketClient({self.name})'
 
     @abc.abstractmethod
     def _ticker(self) -> Ticker:
@@ -239,11 +220,23 @@ class MarketClient(MarketClientMixin, BaseClient):
         return self._sort_timestamp(self._filter_since([self._parse_trade(trade) for trade in trades], since))
 
 
-class WalletClient(CurrencyClientMixin, BaseClient):
+class WalletClient(BaseClient, abc.ABC):
     withdrawal_fees = {}
+
+    def __init__(self, currency: str, client_params: Dict=None, dry_run: bool=False,
+                 logger: Logger=None, store: Store=None, name: str=None, **kwargs):
+        super().__init__(client_params, dry_run, logger, store, name, **kwargs)
+        self.currency: str = currency.upper()
+        self.currency_id: str = self._currency_id()
 
     def __repr__(self):
         return f'WalletClient({self.name})'
+
+    def _currency_id(self) -> str:
+        return self.currency
+
+    def _parse_money(self, value: Number) -> Optional[Decimal]:
+        return parse_money(value, self.currency)
 
     # Balance
     @abc.abstractmethod
@@ -355,28 +348,27 @@ class WalletClient(CurrencyClientMixin, BaseClient):
         return self._parse_transactions(txs, tx_type)(self._filter_since, since)
 
 
-class TradingClient(MarketClientMixin, BaseClient):
-    _wallet_cls: Type[WalletClient] = None
+class TradingClient(MarketClient, abc.ABC):
     has_batch_cancel: bool = False
-    min_order_amount_mapping: Dict = {}
-
-    def __repr__(self):
-        return f'TradingClient({self.name})'
+    min_order_amount_mapping: Dict[str, Decimal] = {}
+    _wallet_cls: Type[WalletClient] = None
 
     class Wallets:
         def __init__(self, cls: Type[WalletClient], market: Market, client_params: Dict,
-                     dry_run: bool, logger: Logger, store, name: str, **kwargs):
+                     dry_run: bool, logger: Logger, store: Store, name: str, **kwargs):
             self.base: WalletClient = cls(market.base, client_params, dry_run, logger, store, name, **kwargs)
             self.quote: WalletClient = cls(market.quote, client_params, dry_run, logger, store, name, **kwargs)
 
     def __init__(self, market: Union[str, Market], client_params: Dict=None, dry_run: bool=False,
-                 logger: Logger=None, store=None, name: str=None, **kwargs):
+                 logger: Logger=None, store: Store=None, name: str=None, **kwargs):
         super().__init__(market, client_params, dry_run, logger, store, name, **kwargs)
         assert self._wallet_cls, 'A wallet cls must be defined for the client!'
-        self.wallets = self.Wallets(self._wallet_cls, self.market, client_params,
-                                    dry_run, logger, store, name, **kwargs)
+        self.wallets = self.Wallets(self._wallet_cls, self.market, self.client_params,
+                                    self.dry_run, self.log, self.store, self.name, **kwargs)
 
-    # Trading ----------------------------------------------------------------
+    def __repr__(self):
+        return f'TradingClient({self.name})'
+
     @abc.abstractmethod
     def _order(self, order_id: str) -> Order:
         pass
@@ -483,9 +475,10 @@ class TradingClient(MarketClientMixin, BaseClient):
     def min_order_amount(self) -> Money:
         """Minimum amount to place an order."""
         try:
-            return self.min_order_amount_mapping[self.market.base]
+            amount = self.min_order_amount_mapping[self.market.base]
         except KeyError:
-            return Money(0, self.market.base)
+            amount = 0
+        return Money(amount, self.market.base)
 
     @abc.abstractmethod
     def _place_order(self, side: Side, order_type: OrderType, amount: Decimal, price: Decimal=None) -> Order:

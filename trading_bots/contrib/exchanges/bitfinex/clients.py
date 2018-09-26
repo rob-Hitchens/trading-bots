@@ -8,6 +8,7 @@ from cached_property import cached_property
 from trading_api_wrappers import Bitfinex
 from trading_api_wrappers import BitfinexV2
 
+from trading_bots.core.storage import Store
 from ..base.clients import *
 from ..base.errors import *
 from ..base.models import *
@@ -54,7 +55,7 @@ class BitfinexAuth(BitfinexBase):
         return Bitfinex.Auth(**self.client_params)
 
 
-class BitfinexMarket(MarketClient, BitfinexPublic):
+class BitfinexMarketBase(MarketClient, ABC):
 
     @cached_property
     def market_id_v2(self) -> str:
@@ -87,7 +88,8 @@ class BitfinexMarket(MarketClient, BitfinexPublic):
         )
 
     def _order_book(self, side: Side=None) -> OrderBook:
-        order_book = self.client.order_book(symbol=self.market_id)
+        # Max limit is 5000 per side
+        order_book = self.client.order_book(symbol=self.market_id, limit_asks=1000, limit_bids=1000)
         return self._parse_order_book(order_book)
 
     def _parse_order_book_entry(self, order: Dict) -> OrderBookEntry:
@@ -135,6 +137,10 @@ class BitfinexMarket(MarketClient, BitfinexPublic):
         )
 
 
+class BitfinexMarket(BitfinexMarketBase, BitfinexPublic):
+    pass
+
+
 class BitfinexWallet(WalletClient, BitfinexAuth):
     withdrawal_fees = {
         'BCH': 0.0005,
@@ -150,7 +156,7 @@ class BitfinexWallet(WalletClient, BitfinexAuth):
     }
 
     def __init__(self, currency: str, client_params: Dict=None, dry_run: bool=False,
-                 logger: Logger=None, store=None, name: str=None,
+                 logger: Logger=None, store: Store=None, name: str=None,
                  wallet_type: str=DEFAULT_WALLET_TYPE, **kwargs):
         super().__init__(currency, client_params, dry_run, logger, store, name, **kwargs)
         self.wallet_type = wallet_type
@@ -255,14 +261,14 @@ class BitfinexWallet(WalletClient, BitfinexAuth):
         return self._parse_transaction(withdrawal, TxType.WITHDRAWAL)
 
 
-class BitfinexTrading(TradingClient, BitfinexAuth, BitfinexMarket):
+class BitfinexTrading(TradingClient, BitfinexMarketBase, BitfinexAuth):
     _wallet_cls = BitfinexWallet
     has_batch_cancel = False
     min_order_amount_mapping = {
-        'BCH': 0.02,
-        'BTC': 0.002,
-        'ETH': 0.04,
-        'LTC': 0.02,
+        'BCH': Decimal('0.02'),
+        'BTC': Decimal('0.002'),
+        'ETH': Decimal('0.04'),
+        'LTC': Decimal('0.02'),
     }
     order_type_mapping = {
         OrderType.MARKET: 'exchange market',

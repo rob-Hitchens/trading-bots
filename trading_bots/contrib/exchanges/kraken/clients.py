@@ -59,7 +59,7 @@ class KrakenAuth(KrakenBase):
         return Kraken.Auth(**self.client_params)
 
 
-class KrakenMarket(MarketClient, KrakenPublic):
+class KrakenMarketBase(MarketClient, ABC):
 
     def _market_id(self) -> str:
         return str(self.market).replace('BTC', 'XBT')
@@ -105,6 +105,10 @@ class KrakenMarket(MarketClient, KrakenPublic):
     def _parse_trade(self, trade: Any) -> Trade:
         # TODO: Implement parse_trade on Kraken
         raise NotImplementedError
+
+
+class KrakenMarket(KrakenMarketBase, KrakenPublic):
+    pass
 
 
 class KrakenWallet(WalletClient, KrakenAuth):
@@ -163,14 +167,14 @@ class KrakenWallet(WalletClient, KrakenAuth):
         return super()._parse_transaction(tx, tx_type)
 
 
-class KrakenTrading(TradingClient, KrakenAuth, KrakenMarket):
+class KrakenTrading(TradingClient, KrakenMarketBase, KrakenAuth):
     _wallet_cls = KrakenWallet
     has_batch_cancel = False
     min_order_amount_mapping = {
-        'BCH': 0.002,
-        'BTC': 0.002,
-        'ETH': 0.02,
-        'LTC': 0.002,
+        'BCH': Decimal('0.002'),
+        'BTC': Decimal('0.002'),
+        'ETH': Decimal('0.02'),
+        'LTC': Decimal('0.002'),
     }
 
     def _order(self, order_id: str) -> Order:
