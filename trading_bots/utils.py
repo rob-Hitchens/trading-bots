@@ -1,6 +1,7 @@
 import math
 from datetime import datetime
 from decimal import Decimal
+from typing import Tuple
 
 from trading_bots.contrib.money import Money
 
@@ -47,11 +48,17 @@ def truncate_money(money: Money) -> Money:
     return Money(amount, money.currency)
 
 
-def spread_value(value: float, spread_p: float):
+def spread_value(value: Decimal, spread_p: Decimal) -> Tuple[Decimal, Decimal]:
     """Returns a lower and upper value separated by a spread percentage"""
     upper = value * (1 + spread_p)
     lower = value / (1 + spread_p)
     return lower, upper
+
+
+def spread_money(money: Money, spread_p: Decimal) -> Tuple[Money, Money]:
+    """Returns a lower and upper money amount separated by a spread percentage"""
+    upper, lower = spread_value(money.amount, spread_p)
+    return Money(upper, money.currency), Money(lower, money.currency)
 
 
 def validate(name: str, value, condition: bool):
