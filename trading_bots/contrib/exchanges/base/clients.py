@@ -37,6 +37,7 @@ class BaseClient(abc.ABC):
         assert self.name, 'A name must be defined for the client!'
         credentials = getattr(settings, 'credentials', {})
         self.credentials: Dict = credentials.get(self.name, {})
+        self.timeout: int = getattr(settings, 'timeout')
         self.client_params: Dict = self._build_client_params(client_params or {})
         self.dry_run: bool = dry_run
         self.log: Logger = logger or get_logger(__name__)
@@ -64,7 +65,7 @@ class BaseClient(abc.ABC):
         pass
 
     def _build_client_params(self, params: Dict) -> Dict:
-        return {'user_agent': USER_AGENT, **self.credentials, **params}
+        return {'timeout': self.timeout, 'user_agent': USER_AGENT, **self.credentials, **params}
 
     def exception(self, exc_type: Type[Exception]=None, msg: str=None, exc: Exception=None) -> Exception:
         if exc_type is None:
