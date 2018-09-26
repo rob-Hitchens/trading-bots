@@ -1,7 +1,9 @@
 import math
 from datetime import datetime
 from decimal import Decimal
-from typing import Tuple
+from typing import Any, Tuple, Union
+
+import maya
 
 from trading_bots.contrib.money import Money
 
@@ -22,13 +24,17 @@ DECIMALS = {
 }
 
 
-def get_iso_time_str(timestamp=None):
+def get_iso_time_str(timestamp: Union[int, float, str, datetime]=None) -> str:
     """Get the ISO time string from a timestamp or date obj. Returns current time str if no timestamp is passed"""
     if isinstance(timestamp, (int, float)):
-        timestamp = datetime.utcfromtimestamp(timestamp)
-    if timestamp is None:
-        timestamp = datetime.utcnow()
-    return timestamp.isoformat(sep=' ', timespec='seconds')
+        maya_dt = maya.MayaDT(timestamp)
+    elif isinstance(timestamp, str):
+        maya_dt = maya.when(timestamp)
+    elif timestamp is None:
+        maya_dt = maya.now()
+    else:
+        raise ValueError(f'`{type(timestamp)}` is not supported')
+    return maya_dt.iso8601()
 
 
 def truncate(value: Decimal, n_digits: int) -> Decimal:
