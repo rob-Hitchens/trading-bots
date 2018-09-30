@@ -1,5 +1,5 @@
 from .clients import *
-from ..base.exchange import Exchange
+from ..base import Exchange
 
 __all__ = [
     'Bitfinex',

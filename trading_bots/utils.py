@@ -67,12 +67,12 @@ def spread_money(money: Money, spread_p: Decimal) -> Tuple[Money, Money]:
     return Money(upper, money.currency), Money(lower, money.currency)
 
 
-def validate(name: str, value, condition: bool):
+def validate(name: str, value: Any, condition: bool) -> None:
     """Validates value on condition"""
     assert condition, f'{name} is invalid! ({name}: {value})'
 
 
-def validate_age(name: str, tolerance, from_timestamp, to_timestamp):
+def validate_age(name: str, tolerance: float, from_timestamp: float, to_timestamp: float) -> None:
     """Check if age is valid (within tolerance)"""
     age = to_timestamp - from_timestamp
     assert age <= tolerance, f'{name} is too old! (Age: {age} > Tolerance: {tolerance})'

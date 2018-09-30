@@ -6,11 +6,10 @@ from operator import attrgetter
 import maya
 import pytest
 
+from trading_bots.contrib.clients import *
+from trading_bots.contrib.errors import *
 from trading_bots.contrib.exchanges import *
-from trading_bots.contrib.exchanges.base.clients import *
-from trading_bots.contrib.exchanges.base.errors import *
-from trading_bots.contrib.exchanges.base.exchange import *
-from trading_bots.contrib.exchanges.base.models import *
+from trading_bots.contrib.models import *
 
 E = namedtuple('Exchange', 'exchange name market')
 

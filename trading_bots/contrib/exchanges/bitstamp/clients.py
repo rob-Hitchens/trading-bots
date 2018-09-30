@@ -7,9 +7,9 @@ from cached_property import cached_property
 from trading_api_wrappers import Bitstamp
 
 from trading_bots.utils import truncate
-from ..base.clients import *
-from ..base.errors import *
-from ..base.models import *
+from ...clients import *
+from ...errors import *
+from ...models import *
 
 __all__ = [
     'BitstampPublic',

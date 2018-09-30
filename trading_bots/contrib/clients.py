@@ -19,30 +19,41 @@ from .models import *
 from .utils import parse_money
 
 __all__ = [
+    'USER_AGENT',
+    'ClientWrapper',
     'BaseClient',
     'MarketClient',
     'WalletClient',
-    'TradingClient',
+    'TradingClient'
 ]
 
 USER_AGENT = user_agent('trading-bots', __version__)
 
 
-class BaseClient(abc.ABC):
+class ClientWrapper(abc.ABC):
     name: str = None
 
-    def __init__(self, client_params: Dict=None, dry_run: bool=False,
-                 logger: Logger=None, store: Store=None, name: str=None, **kwargs):
+    def __init__(self, client_params: Dict=None, name: str=None):
         assert self.name, 'A name must be defined for the client!'
         credentials = getattr(settings, 'credentials', {})
         self.credentials: Dict = credentials.get(self.name, {})
         self.timeout: int = getattr(settings, 'timeout')
         self.client_params: Dict = self._build_client_params(client_params or {})
+        if name is not None:
+            self.name = name
+
+    def _build_client_params(self, params: Dict) -> Dict:
+        return {'timeout': self.timeout, 'user_agent': USER_AGENT, **self.credentials, **params}
+
+
+class BaseClient(ClientWrapper, abc.ABC):
+
+    def __init__(self, client_params: Dict=None, dry_run: bool=False,
+                 logger: Logger=None, store: Store=None, name: str=None, **kwargs):
+        super().__init__(client_params, name)
         self.dry_run: bool = dry_run
         self.log: Logger = logger or get_logger(__name__)
         self.store = store or get_store(self.log)
-        if name is not None:
-            self.name = name
 
     common_currencies = {
         'XBT': 'BTC',
@@ -63,14 +74,9 @@ class BaseClient(abc.ABC):
     def markets(self) -> Set[Market]:
         pass
 
-    def _build_client_params(self, params: Dict) -> Dict:
-        return {'timeout': self.timeout, 'user_agent': USER_AGENT, **self.credentials, **params}
-
     def exception(self, exc_type: Type[Exception]=None, msg: str=None, exc: Exception=None) -> Exception:
         if exc_type is None:
             exc_type = ExchangeError
-        if msg:
-            self.log.error(msg)
         if isinstance(exc, (ExchangeError, NotImplementedError)):
             return exc
         return exc_type(msg)

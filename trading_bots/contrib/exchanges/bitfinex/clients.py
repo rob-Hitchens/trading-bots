@@ -9,9 +9,9 @@ from trading_api_wrappers import Bitfinex
 from trading_api_wrappers import BitfinexV2
 
 from trading_bots.core.storage import Store
-from ..base.clients import *
-from ..base.errors import *
-from ..base.models import *
+from ...clients import *
+from ...errors import *
+from ...models import *
 
 __all__ = [
     'BitfinexPublic',

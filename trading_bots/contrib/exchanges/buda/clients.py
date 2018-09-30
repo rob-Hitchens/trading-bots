@@ -7,9 +7,9 @@ import maya
 from cached_property import cached_property
 from trading_api_wrappers import Buda
 
-from ..base.clients import *
-from ..base.errors import *
-from ..base.models import *
+from ...clients import *
+from ...errors import *
+from ...models import *
 
 __all__ = [
     'BudaBase',
