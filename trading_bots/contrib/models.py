@@ -9,7 +9,6 @@ from cached_property import cached_property
 
 from .errors import *
 from .money import Money
-from .utils import parse_money
 
 __all__ = [
     'Number',
@@ -292,6 +291,7 @@ class OrderBook(Timestamped):
     def get_book_side(self, side: Side) -> OrderBookSide:
         return self.bids if side == Side.BUY else self.asks
 
+    # Volume -----------------------------------------------------------------
     @cached_property
     def volume_bid(self):
         """Get bid volume from order book."""
@@ -315,44 +315,77 @@ class OrderBook(Timestamped):
         volume_total = self.volume
         return volume_total, volume_bid, volume_ask
 
-    def _quote_book_price(self, side: Side, amount: Decimal) -> Money:
+    # Quote ------------------------------------------------------------------
+    def _quote_book_orders(self, side: Side, amount: Money=None) -> List[OrderBookEntry]:
         # Flip sides, for a buy quotation we need to quote the sell book (asks)
         side = Side.SELL if side == side.BUY else Side.BUY
         order_book_side = self.get_book_side(side)
+        if amount is None:
+            amount = Money(0, self.market.base)
         remaining = amount
-        quote = 0
+        orders: List[OrderBookEntry] = []
         if not order_book_side:
             raise OrderBookEmpty(f'{side.value.title()} order book is empty!')
         for order in order_book_side:
-            remaining -= order.amount.amount
-            quote = order.price
-            if remaining < 0:
+            order_amount = min(order.amount, remaining)
+            orders.append(OrderBookEntry(order.price, order_amount))
+            remaining -= order_amount
+            if not remaining:
                 break
-        if remaining > 0:
+        if remaining:
             raise QuotationError(f'Total amount on {side} order book is not enough to cover quote')
-        return quote
+        return orders
 
-    def quote_price(self, side: Side, amount: Number=0) -> Money:
+    def quote_amount(self, side: Side, amount: Money=None) -> Money:
+        """Get the quote amount given a base amount for a side of the order book."""
+        orders = self._quote_book_orders(side, amount)
+        return sum(o.price * o.amount.amount for o in orders)
+
+    def quote_buy_amount(self, amount: Money=None) -> Money:
+        """Get the quote amount given a spent base from the order book."""
+        return self.quote_amount(Side.BUY, amount)
+
+    def quote_sell_amount(self, amount: Money=None) -> Money:
+        """Get the quote amount given an earned base from the order book."""
+        return self.quote_amount(Side.SELL, amount)
+
+    def quote_average_price(self, side: Side, amount: Money=None) -> Money:
+        """Quote an average price for an amount for a side of the order book."""
+        if not amount:
+            return self.quote_price(side, amount)
+        quote = self.quote_amount(side, amount)
+        return quote / (amount.amount if amount else 1)
+
+    def quote_average_buy_price(self, amount: Money=None) -> Money:
+        """Quote an average buy price for an amount from the order book."""
+        return self.quote_average_price(Side.BUY, amount)
+
+    def quote_average_sell_price(self, amount: Money=None) -> Money:
+        """Quote an average sell price for an amount from the order book."""
+        return self.quote_average_price(Side.SELL, amount)
+
+    # Spread -----------------------------------------------------------------
+    def quote_price(self, side: Side, amount: Money=None) -> Money:
         """Quote price for an amount from a side of the order book."""
-        amount = parse_money(amount, self.market.base)
-        return self._quote_book_price(side, amount)
+        orders = self._quote_book_orders(side, amount)
+        return orders[-1].price
 
-    def quote_buy_price(self, amount: Number=0) -> Money:
-        """Quote a buy price for an amount from the order book."""
-        return self.quote_price(Side.BUY, amount)
-
-    def quote_sell_price(self, amount: Number=0) -> Money:
+    def quote_bid_price(self, amount: Money=None) -> Money:
         """Quote a sell price for an amount from the order book."""
         return self.quote_price(Side.SELL, amount)
 
-    def quote_spread_details(self, amount: Number=0) -> Tuple[Money, Money, Money]:
+    def quote_ask_price(self, amount: Money=None) -> Money:
+        """Quote a buy price for an amount from the order book."""
+        return self.quote_price(Side.BUY, amount)
+
+    def quote_spread_details(self, amount: Money=None) -> Tuple[Money, Money, Money]:
         """Quote spread details (bid, ask, spread) for an amount from the order book."""
-        bid = self.quote_sell_price(amount)
-        ask = self.quote_buy_price(amount)
+        bid = self.quote_bid_price(amount)
+        ask = self.quote_ask_price(amount)
         spread = ask - bid
         return bid, ask, spread
 
-    def quote_spread(self, amount: Number=0) -> Money:
+    def quote_spread(self, amount: Money=None) -> Money:
         """Quote the spread for an amount from the order book."""
         bid, ask, spread = self.quote_spread_details(amount)
         return spread
@@ -370,12 +403,12 @@ class OrderBook(Timestamped):
     @cached_property
     def bid_price(self) -> Money:
         """Get the bid price from order book."""
-        return self.quote_buy_price()
+        return self.quote_ask_price()
 
     @cached_property
     def ask_price(self) -> Money:
         """Get the ask price from order book."""
-        return self.quote_sell_price()
+        return self.quote_bid_price()
 
     @cached_property
     def vw_price(self) -> Money:

@@ -96,10 +96,14 @@ order_book = OrderBook(
 )
 
 
+@pytest.fixture(params=[Side.BUY, Side.SELL], ids=attrgetter('value'))
+def side(request) -> Side:
+    return request.param
+
+
 class TestOrderBook:
 
     @skip_allowed_errors
-    @pytest.mark.parametrize('side', [Side.BUY, Side.SELL], ids=attrgetter('value'))
     def test_order_book_get_side(self, side):
         order_book_side = order_book.get_book_side(side)
         if not order_book_side:
@@ -108,8 +112,15 @@ class TestOrderBook:
             assert isinstance(entry, OrderBookEntry)
 
     @skip_allowed_errors
+    def test_order_book_quote_average_price(self, side):
+        amount = Money(1, order_book.market.base)
+        quote = order_book.quote_average_price(side, amount)
+        assert isinstance(quote, Money)
+        assert order_book.market.quote == quote.currency
+
+    @skip_allowed_errors
     def test_order_book_quote_spread_details(self):
-        slippage = 1
+        slippage = Money(1, order_book.market.base)
         spread = order_book.quote_spread_details(slippage)
         assert len(spread) == 3
         for value in spread:
